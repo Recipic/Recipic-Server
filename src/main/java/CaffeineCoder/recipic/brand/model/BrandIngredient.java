@@ -19,8 +19,6 @@ public class BrandIngredient {
     private Ingredient ingredient;
 
 
-    // Getter와 Setter
-
     public Ingredient getIngredient() {
         return ingredient;
     }
@@ -29,7 +27,4 @@ public class BrandIngredient {
         this.ingredient = ingredient;
     }
 
-    // Constructor (기본 생성자 포함)
 }
-
-
