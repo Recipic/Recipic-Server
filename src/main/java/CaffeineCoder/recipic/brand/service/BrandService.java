@@ -30,14 +30,16 @@ public class BrandService {
                 .stream()
                 .map(brandIngredient -> {
                     Ingredient ingredient = brandIngredient.getIngredient();
-                    IngredientDTO dto = new IngredientDTO(
-                            ingredient.getIngredientId(),
-                            ingredient.getIngredientName(),
-                            ingredient.getQuantity(),
-                            ingredient.getUnit(),
-                            ingredient.getCost(),
-                            ingredient.getCalorie()
-                    );
+
+                    IngredientDTO dto = new IngredientDTO.Builder()
+                            .ingredientId(ingredient.getIngredientId())
+                            .name(ingredient.getIngredientName())
+                            .quantity(ingredient.getQuantity())
+                            .unit(ingredient.getUnit())
+                            .cost(ingredient.getCost())
+                            .calorie(ingredient.getCalorie())
+                            .build();
+
                     return dto.toMap();
                 })
                 .collect(Collectors.toList());

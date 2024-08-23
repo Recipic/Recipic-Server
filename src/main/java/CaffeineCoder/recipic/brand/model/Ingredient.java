@@ -1,9 +1,11 @@
 package CaffeineCoder.recipic.brand.model;
 
-
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Ingredient {
 
     @Id
@@ -26,53 +28,15 @@ public class Ingredient {
     @Column(name = "calorie")
     private Double calorie;  // 칼로리
 
-    // Getters
-    public Integer getIngredientId() {
-        return ingredientId;
-    }
-
-    public String getIngredientName() {
-        return ingredientName;
-    }
-
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public Integer getCost() {
-        return cost;
-    }
-
-    public Double getCalorie() {
-        return calorie;
-    }
-
-    // Setters
-    public void setIngredientId(Integer ingredientId) {
-        this.ingredientId = ingredientId;
-    }
-
-    public void setIngredientName(String ingredientName) {
+    @Builder
+    public Ingredient(String ingredientName, String quantity, String unit, Integer cost, Double calorie) {
         this.ingredientName = ingredientName;
-    }
-
-    public void setQuantity(String quantity) {
         this.quantity = quantity;
-    }
-
-    public void setUnit(String unit) {
         this.unit = unit;
-    }
-
-    public void setCost(Integer cost) {
         this.cost = cost;
+        this.calorie = calorie;
     }
 
-    public void setCalorie(Double calorie) {
-        this.calorie = calorie;
+    protected Ingredient() {
     }
 }

@@ -1,8 +1,6 @@
 package CaffeineCoder.recipic.brand.model;
 
-
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -20,4 +18,3 @@ public class Brand {
     private List<BrandIngredient> brandIngredients;
 
 }
-

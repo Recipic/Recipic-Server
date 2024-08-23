@@ -5,69 +5,90 @@ import java.util.Map;
 
 public class IngredientDTO {
 
-    private Integer ingredientId;  // 재료 ID
-    private String name;  // 재료명
-    private String quantity;  // 양
-    private String unit;  // 단위
-    private Integer cost;  // 비용
-    private Double calorie;  // 칼로리
+    private final Integer ingredientId;  // 재료 ID
+    private final String name;  // 재료명
+    private final String quantity;  // 양
+    private final String unit;  // 단위
+    private final Integer cost;  // 비용
+    private final Double calorie;  // 칼로리
 
-    public IngredientDTO(Integer ingredientId, String name, String quantity, String unit, Integer cost, Double calorie) {
-        this.ingredientId = ingredientId;
-        this.name = name;
-        this.quantity = quantity;
-        this.unit = unit;
-        this.cost = cost;
-        this.calorie = calorie;
+    public IngredientDTO(Builder builder) {
+        this.ingredientId = builder.ingredientId;
+        this.name = builder.name;
+        this.quantity = builder.quantity;
+        this.unit = builder.unit;
+        this.cost = builder.cost;
+        this.calorie = builder.calorie;
     }
 
-    // Getters and Setters
+    public static class Builder {
+        private Integer ingredientId;
+        private String name;
+        private String quantity;
+        private String unit;
+        private Integer cost;
+        private Double calorie;
+
+        // Builder 생성자를 public으로 변경
+        public Builder() {}
+
+        public Builder ingredientId(Integer ingredientId) {
+            this.ingredientId = ingredientId;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder quantity(String quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public Builder unit(String unit) {
+            this.unit = unit;
+            return this;
+        }
+
+        public Builder cost(Integer cost) {
+            this.cost = cost;
+            return this;
+        }
+
+        public Builder calorie(Double calorie) {
+            this.calorie = calorie;
+            return this;
+        }
+
+        public IngredientDTO build() {
+            return new IngredientDTO(this);
+        }
+    }
+
     public Integer getIngredientId() {
         return ingredientId;
-    }
-
-    public void setIngredientId(Integer ingredientId) {
-        this.ingredientId = ingredientId;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getQuantity() {
         return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
     }
 
     public String getUnit() {
         return unit;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
     public Integer getCost() {
         return cost;
     }
 
-    public void setCost(Integer cost) {
-        this.cost = cost;
-    }
-
     public Double getCalorie() {
         return calorie;
-    }
-
-    public void setCalorie(Double calorie) {
-        this.calorie = calorie;
     }
 
     public Map<String, Object> toMap() {
