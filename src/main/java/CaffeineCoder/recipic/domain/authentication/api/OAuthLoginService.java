@@ -39,4 +39,8 @@ public class OAuthLoginService {
 
         return userRepository.save(user).getUserId();
     }
+
+    public TokenDto issueAdmin() {
+        return authTokensGenerator.generateAdmin();
+    }
 }

@@ -39,4 +39,17 @@ public class AuthTokensGenerator {
         return tokenDto;
     }
 
+    public TokenDto generateAdmin() {
+
+        String subject = "admin";
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(subject, null, authorities);
+        TokenDto tokenDto = tokenProvider.generateAdminTokenDto(authentication);
+
+
+        return tokenDto;
+    }
+
 }
