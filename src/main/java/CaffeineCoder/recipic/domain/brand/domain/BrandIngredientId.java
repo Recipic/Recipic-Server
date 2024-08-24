@@ -14,7 +14,7 @@ import java.util.Objects;
 public class BrandIngredientId implements Serializable {
 
     @Column(name = "brand_id")
-    private Integer brandId;
+    private Integer brandId; //Long에서 Integer로 수정
 
     @Column(name = "ingredient_id")
     private Integer ingredientId;

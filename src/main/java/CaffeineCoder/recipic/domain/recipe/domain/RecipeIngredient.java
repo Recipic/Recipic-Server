@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor // 기본 생성자 추가
+@NoArgsConstructor
 public class RecipeIngredient {
 
     @EmbeddedId

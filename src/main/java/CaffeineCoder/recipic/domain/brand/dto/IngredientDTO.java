@@ -29,7 +29,6 @@ public class IngredientDTO {
         private Integer cost;
         private Double calorie;
 
-        // Builder 생성자를 public으로 변경
         public Builder() {}
 
         public Builder ingredientId(Integer ingredientId) {
