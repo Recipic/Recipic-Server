@@ -23,5 +23,10 @@ public class AuthController {
         return ResponseEntity.ok(oAuthLoginService.login(params));
     }
 
+    @PostMapping("/admin")
+    public ResponseEntity<TokenDto> issueAdmin() {
+        return ResponseEntity.ok(oAuthLoginService.issueAdmin());
+    }
+
 
 }
