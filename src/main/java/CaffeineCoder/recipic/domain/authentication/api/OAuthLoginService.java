@@ -1,12 +1,12 @@
 package CaffeineCoder.recipic.domain.authentication.api;
 
-import CaffeineCoder.recipic.domain.authentication.domain.AuthTokens;
 import CaffeineCoder.recipic.domain.authentication.domain.AuthTokensGenerator;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthInfoResponse;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthLoginParams;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.RequestOAuthInfoService;
-import CaffeineCoder.recipic.domain.User.domain.User;
-import CaffeineCoder.recipic.domain.User.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +17,10 @@ public class OAuthLoginService {
     private final AuthTokensGenerator authTokensGenerator;
     private final RequestOAuthInfoService requestOAuthInfoService;
 
-    public AuthTokens login(OAuthLoginParams params) {
+    public TokenDto login(OAuthLoginParams params) {
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
         Long memberId = findOrCreateMember(oAuthInfoResponse);
+
         return authTokensGenerator.generate(memberId);
     }
 
