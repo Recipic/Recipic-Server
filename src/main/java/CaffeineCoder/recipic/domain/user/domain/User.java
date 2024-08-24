@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.domain.User.domain;
+package CaffeineCoder.recipic.domain.user.domain;
 
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthProvider;
 import jakarta.persistence.*;
