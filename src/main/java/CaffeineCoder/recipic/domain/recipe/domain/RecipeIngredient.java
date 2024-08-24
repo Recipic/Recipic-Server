@@ -1,45 +1,37 @@
 package CaffeineCoder.recipic.domain.recipe.domain;
 
+import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "recipe_ingredient")
+@Getter
+@NoArgsConstructor // 기본 생성자 추가
 public class RecipeIngredient {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    @EmbeddedId
+    private RecipeIngredientId id;
 
     @ManyToOne
-    @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredient;
-
-    @ManyToOne
+    @MapsId("recipeId")
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
+    @ManyToOne
+    @MapsId("ingredientId")
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
+
+    @Column(name = "count")
     private Integer count;
 
-    // 생성자 추가
-    public RecipeIngredient(Recipe recipe, Ingredient ingredient, Integer count) {
+    @Builder
+    public RecipeIngredient(RecipeIngredientId id, Recipe recipe, Ingredient ingredient, Integer count) {
+        this.id = id;
         this.recipe = recipe;
         this.ingredient = ingredient;
         this.count = count;
-    }
-
-    // Getter 메서드만 추가
-    public Long getId() {
-        return id;
-    }
-
-    public Ingredient getIngredient() {
-        return ingredient;
-    }
-
-    public Recipe getRecipe() {
-        return recipe;
-    }
-
-    public Integer getCount() {
-        return count;
     }
 }

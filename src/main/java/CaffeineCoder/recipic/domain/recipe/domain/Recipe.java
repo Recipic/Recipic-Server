@@ -1,78 +1,58 @@
 package CaffeineCoder.recipic.domain.recipe.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
-@Table(name = "recipe")
+@Getter
 public class Recipe {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recipeId;
+    @Column(name = "recipe_id")
+    private Integer recipeId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private final Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    @Column(name = "brand_id")
+    private final Integer brandId;
 
-    private String title;
+    @Column(name = "title")
+    private final String title;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "is_celebrity")
     private Boolean isCelebrity;
+
+    @Column(name = "created_at")
     private Timestamp createdAt;
+
+    @Column(name = "status")
     private Integer status;
 
-    // 생성자 추가
-    public Recipe(User user, Brand brand, String title, String description,
-                  String imageUrl, Boolean isCelebrity, Integer status) {
-        this.user = user;
-        this.brand = brand;
+    // 연관 관계 매핑 (optional)
+    @OneToMany(mappedBy = "recipe")
+    private List<RecipeIngredient> recipeIngredients;
+
+    @Builder
+    public Recipe(Long userId, Integer brandId, String title, String description, String imageUrl, Boolean isCelebrity, Timestamp createdAt, Integer status) {
+        this.userId = userId;
+        this.brandId = brandId;
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
         this.isCelebrity = isCelebrity;
+        this.createdAt = createdAt;
         this.status = status;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-    }
-
-    // Getter 메서드만 추가 (Setter는 생략)
-    public Long getRecipeId() {
-        return recipeId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Brand getBrand() {
-        return brand;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public Boolean getIsCelebrity() {
-        return isCelebrity;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public Integer getStatus() {
-        return status;
     }
 }
