@@ -1,8 +1,12 @@
-package CaffeineCoder.recipic.brand.model;
+package CaffeineCoder.recipic.domain.brand.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor
 public class BrandIngredient {
 
     @EmbeddedId

@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.brand.DTO;
+package CaffeineCoder.recipic.domain.brand.dto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,7 +29,6 @@ public class IngredientDTO {
         private Integer cost;
         private Double calorie;
 
-        // Builder 생성자를 public으로 변경
         public Builder() {}
 
         public Builder ingredientId(Integer ingredientId) {

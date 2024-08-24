@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.brand.model;
+package CaffeineCoder.recipic.domain.brand.domain;
 
 import jakarta.persistence.*;
 import lombok.Builder;

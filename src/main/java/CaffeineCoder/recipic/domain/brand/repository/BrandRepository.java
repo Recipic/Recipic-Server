@@ -1,6 +1,6 @@
-package CaffeineCoder.recipic.brand.repository;
+package CaffeineCoder.recipic.domain.brand.repository;
 
-import CaffeineCoder.recipic.brand.model.Brand;
+import CaffeineCoder.recipic.domain.brand.domain.Brand;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

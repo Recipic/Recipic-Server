@@ -1,6 +1,5 @@
-package CaffeineCoder.recipic.brand.controller;
+package CaffeineCoder.recipic.domain.brand.api;
 
-import CaffeineCoder.recipic.brand.service.BrandService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,10 +1,10 @@
-package CaffeineCoder.recipic.brand.service;
+package CaffeineCoder.recipic.domain.brand.api;
 
-import CaffeineCoder.recipic.brand.DTO.IngredientDTO;
-import CaffeineCoder.recipic.brand.model.Brand;
-import CaffeineCoder.recipic.brand.model.Ingredient;
-import CaffeineCoder.recipic.brand.repository.BrandIngredientRepository;
-import CaffeineCoder.recipic.brand.repository.BrandRepository;
+import CaffeineCoder.recipic.domain.brand.dto.IngredientDTO;
+import CaffeineCoder.recipic.domain.brand.domain.Brand;
+import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
+import CaffeineCoder.recipic.domain.brand.repository.BrandIngredientRepository;
+import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

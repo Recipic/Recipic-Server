@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.brand.model;
+package CaffeineCoder.recipic.domain.brand.domain;
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -9,7 +9,7 @@ public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "brand_id")
-    private Long brandId;
+    private Integer brandId; //Long에서 Integer로 수정
 
     @Column(name = "brand_name")
     private String brandName;
