@@ -1,6 +1,5 @@
 package CaffeineCoder.recipic.domain.authentication.api;
 
-import CaffeineCoder.recipic.domain.authentication.domain.AuthTokens;
 import CaffeineCoder.recipic.domain.authentication.infra.kakao.KakaoLoginParams;
 import CaffeineCoder.recipic.domain.authentication.infra.naver.NaverLoginParams;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
