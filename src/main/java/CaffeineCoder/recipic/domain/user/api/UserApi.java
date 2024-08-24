@@ -1,8 +1,11 @@
-package CaffeineCoder.recipic.domain.User.api;
+package CaffeineCoder.recipic.domain.user.api;
 
+import CaffeineCoder.recipic.domain.user.application.UserService;
+import CaffeineCoder.recipic.domain.user.dto.UserResponseDto;
 import CaffeineCoder.recipic.domain.authentication.domain.AuthTokensGenerator;
-import CaffeineCoder.recipic.domain.User.domain.User;
-import CaffeineCoder.recipic.domain.User.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserApi {
+    private final UserService userService;
     private final UserRepository userRepository;
     private final AuthTokensGenerator authTokensGenerator;
 
@@ -22,9 +26,7 @@ public class UserApi {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<User> findByAccessToken(@RequestParam("accessToken") String accessToken) {
-        Long userId = authTokensGenerator.extractUserId(accessToken);
-        System.out.println(userId);
-        return ResponseEntity.ok(userRepository.findById(userId).get());
+    public ResponseEntity<UserResponseDto> findMemberInfoById() {
+        return ResponseEntity.ok(userService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
     }
 }

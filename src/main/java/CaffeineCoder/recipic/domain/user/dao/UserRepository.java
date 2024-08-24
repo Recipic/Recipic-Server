@@ -1,6 +1,6 @@
-package CaffeineCoder.recipic.domain.User.dao;
+package CaffeineCoder.recipic.domain.user.dao;
 
-import CaffeineCoder.recipic.domain.User.domain.User;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
