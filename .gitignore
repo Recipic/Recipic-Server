@@ -38,4 +38,5 @@ out/
 
 application-*
 application.properties
-build
+test.html
+/login/*
