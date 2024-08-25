@@ -8,29 +8,27 @@ import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
+import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class RecipeService {
-
     private final RecipeRepository recipeRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final BrandRepository brandRepository;
     private final IngredientRepository ingredientRepository;
+    private final ScrapRepository scrapRepository;
 
-    public RecipeService(RecipeRepository recipeRepository, RecipeIngredientRepository recipeIngredientRepository,
-                         BrandRepository brandRepository, IngredientRepository ingredientRepository) {
-        this.recipeRepository = recipeRepository;
-        this.recipeIngredientRepository = recipeIngredientRepository;
-        this.brandRepository = brandRepository;
-        this.ingredientRepository = ingredientRepository;
-    }
 
     public void registerRecipe(Map<String, Object> recipeData) {
         // Recipe 엔티티 생성
@@ -70,11 +68,12 @@ public class RecipeService {
 
     public RecipeDto getRecipeDetail(Integer recipeId) {
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
+        int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
-        RecipeDto recipeDto = RecipeDto.fromEntity(recipe);
-
-        return recipeDto;
+        return RecipeDto.fromEntity(recipe, scrapCount);
     }
+
+
 
 
 }
