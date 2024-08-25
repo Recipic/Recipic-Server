@@ -31,6 +31,16 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/like")
+    public ResponseEntity<Map<String, Object>> toggleLikeComment(@RequestBody Map<String, Integer> request) {
+        Integer commentId = request.get("commentId");
+        boolean isLiked = commentService.toggleLikeComment(commentId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isLiked", isLiked);
+        return ResponseEntity.ok(response);
+    }
+
     // 댓글 삭제 메소드 추가
     @DeleteMapping
     public ResponseEntity<Map<String, Object>> deleteComment(@RequestBody Map<String, Integer> request) {
