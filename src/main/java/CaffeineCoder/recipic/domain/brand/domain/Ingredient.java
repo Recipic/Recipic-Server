@@ -37,6 +37,7 @@ public class Ingredient {
         this.calorie = calorie;
     }
 
+    // 기본 생성자 추가
     protected Ingredient() {
     }
 }
