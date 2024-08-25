@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+import CaffeineCoder.recipic.domain.comment.dto.CommentLikeRequestDto;
+
 @RestController
 @RequestMapping("/api/recipe/comment")
 @RequiredArgsConstructor
@@ -21,6 +23,16 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createComment(@RequestBody CommentRequestDto commentRequestDto) {
         boolean isSuccess = commentService.createComment(commentRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", isSuccess);
+        return ResponseEntity.ok(response);
+    }
+
+    // 댓글 좋아요 토글
+    @PostMapping("/like")
+    public ResponseEntity<Map<String, Object>> toggleCommentLike(@RequestBody CommentLikeRequestDto requestDto) {
+        boolean isSuccess = commentService.toggleCommentLike(requestDto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("isSuccess", isSuccess);
