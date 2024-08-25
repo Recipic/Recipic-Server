@@ -36,7 +36,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            // CSRF 설정 Disable
+        // CSRF 설정 Disable
         http
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(handling -> handling
@@ -50,13 +50,11 @@ public class SecurityConfig {
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/page/**").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
-
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 관련 경로 허용
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class); // jwt 변경사항
 
         return http.build();
-
-
     }
 }
