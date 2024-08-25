@@ -1,10 +1,11 @@
 package CaffeineCoder.recipic.domain.recipe.api;
 
+import CaffeineCoder.recipic.domain.recipe.application.RecipeService;
+import CaffeineCoder.recipic.global.response.ApiResponse;
+import CaffeineCoder.recipic.global.util.ApiUtils;
+import lombok.Getter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -24,4 +25,10 @@ public class RecipeController {
 
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
+
+    @GetMapping("/detail/{recipeId}")
+    public ApiResponse<?> getRecipeDetail(@PathVariable("recipeId") Integer recipeId) {
+        return ApiUtils.success(recipeService.getRecipeDetail(recipeId));
+    }
+
 }
