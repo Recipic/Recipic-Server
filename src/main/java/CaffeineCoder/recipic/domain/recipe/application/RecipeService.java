@@ -8,6 +8,7 @@ import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
+import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -30,15 +31,15 @@ public class RecipeService {
     private final ScrapRepository scrapRepository;
 
 
-    public void registerRecipe(Map<String, Object> recipeData) {
+    public void registerRecipe(RecipeRequestDto recipeRequestDto) {
         // Recipe 엔티티 생성
         Recipe recipe = Recipe.builder()
-                .userId(Long.valueOf((String) recipeData.get("userId")))
-                .brandId((Integer) recipeData.get("brandId"))
-                .title((String) recipeData.get("title"))
-                .description((String) recipeData.get("description"))
-                .imageUrl((String) recipeData.get("thumbnailUrl"))
-                .isCelebrity((Boolean) recipeData.get("isCelebrity"))
+                .userId(Long.valueOf(recipeRequestDto.getUserId()))
+                .brandId(recipeRequestDto.getBrandId())
+                .title(recipeRequestDto.getTitle())
+                .description(recipeRequestDto.getDescription())
+                .imageUrl(recipeRequestDto.getThumbnailUrl())
+                .isCelebrity(recipeRequestDto.getIsCelebrity())
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .status(1)
                 .build();
@@ -47,22 +48,24 @@ public class RecipeService {
         Recipe savedRecipe = recipeRepository.save(recipe);
 
         // RecipeIngredient 저장
-        List<Map<String, Object>> selectedIngredients = (List<Map<String, Object>>) recipeData.get("selectedRecipes");
-        List<RecipeIngredient> recipeIngredients = selectedIngredients.stream().map(ingredientData -> {
-            RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
-                    (Integer) ingredientData.get("ingredientId"),
-                    savedRecipe.getRecipeId()
-            );
+        List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
+                .map(selectedRecipe -> {
+                    RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
+                            selectedRecipe.getIngredientId(),
+                            savedRecipe.getRecipeId()
+                    );
 
-            return RecipeIngredient.builder()
-                    .id(recipeIngredientId)
-                    .recipe(savedRecipe)
-                    .ingredient(ingredientRepository.findById((Integer) ingredientData.get("ingredientId"))
-                            .orElseThrow(() -> new RuntimeException("Ingredient not found")))
-                    .count((Integer) ingredientData.get("count"))
-                    .build();
-        }).collect(Collectors.toList());
+                    return RecipeIngredient.builder()
+                            .id(recipeIngredientId)
+                            .recipe(savedRecipe)
+                            .ingredient(ingredientRepository.findById(selectedRecipe.getIngredientId())
+                                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientId())))
+                            .count(selectedRecipe.getCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
 
+        // 모든 RecipeIngredient 저장
         recipeIngredientRepository.saveAll(recipeIngredients);
     }
 
