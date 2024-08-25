@@ -2,13 +2,16 @@ package CaffeineCoder.recipic.domain.brand.api;
 
 import CaffeineCoder.recipic.domain.brand.dto.IngredientDTO;
 import CaffeineCoder.recipic.domain.brand.domain.Brand;
+import CaffeineCoder.recipic.domain.brand.domain.BrandIngredient;
 import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
 import CaffeineCoder.recipic.domain.brand.repository.BrandIngredientRepository;
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
+import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,10 +19,12 @@ public class BrandService {
 
     private final BrandRepository brandRepository;
     private final BrandIngredientRepository brandIngredientRepository;
+    private final IngredientRepository ingredientRepository;
 
-    public BrandService(BrandRepository brandRepository, BrandIngredientRepository brandIngredientRepository) {
+    public BrandService(BrandRepository brandRepository, BrandIngredientRepository brandIngredientRepository, IngredientRepository ingredientRepository) {
         this.brandRepository = brandRepository;
         this.brandIngredientRepository = brandIngredientRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     public List<Map<String, Object>> getIngredientsByBrandName(String brandName) {
@@ -45,4 +50,31 @@ public class BrandService {
                 .collect(Collectors.toList());
     }
 
+    public boolean addIngredientToBrand(String brandName, String ingredientName, String quantity, String unit, Integer cost, Double calorie) {
+        Optional<Brand> optionalBrand = brandRepository.findByBrandName(brandName);
+        if (optionalBrand.isEmpty()) {
+            return false;
+        }
+        Brand brand = optionalBrand.get();
+
+        // 새로운 Ingredient 객체 생성
+        Ingredient ingredient = Ingredient.builder()
+                .ingredientName(ingredientName)
+                .quantity(quantity)
+                .unit(unit)
+                .cost(cost)
+                .calorie(calorie)
+                .build();
+
+        // Ingredient 저장
+        ingredientRepository.save(ingredient);
+
+        // BrandIngredient 객체 생성
+        BrandIngredient brandIngredient = new BrandIngredient();
+        brandIngredient.setIngredient(ingredient);
+        brandIngredient.setBrand(brand);
+        brandIngredientRepository.save(brandIngredient);
+
+        return true;
+    }
 }
