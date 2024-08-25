@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.domain.recipe.api;
+package CaffeineCoder.recipic.domain.recipe.application;
 
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
@@ -7,6 +7,7 @@ import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
+import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -65,6 +66,14 @@ public class RecipeService {
         }).collect(Collectors.toList());
 
         recipeIngredientRepository.saveAll(recipeIngredients);
+    }
+
+    public RecipeDto getRecipeDetail(Integer recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        RecipeDto recipeDto = RecipeDto.fromEntity(recipe);
+
+        return recipeDto;
     }
 
 

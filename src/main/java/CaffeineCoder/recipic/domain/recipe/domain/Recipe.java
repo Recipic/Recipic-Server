@@ -1,14 +1,18 @@
 package CaffeineCoder.recipic.domain.recipe.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Recipe {
 
     @Id
@@ -17,13 +21,13 @@ public class Recipe {
     private Integer recipeId;
 
     @Column(name = "user_id")
-    private final Long userId;
+    private Long userId;
 
     @Column(name = "brand_id")
-    private final Integer brandId;
+    private Integer brandId;
 
     @Column(name = "title")
-    private final String title;
+    private String title;
 
     @Column(name = "description")
     private String description;
