@@ -1,6 +1,7 @@
 package CaffeineCoder.recipic.domain.recipe.api;
 
 import CaffeineCoder.recipic.domain.recipe.application.RecipeService;
+import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
 import CaffeineCoder.recipic.global.response.ApiResponse;
 import CaffeineCoder.recipic.global.util.ApiUtils;
 import lombok.Getter;
@@ -20,8 +21,8 @@ public class RecipeController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerRecipe(@RequestBody Map<String, Object> recipeData) {
-        recipeService.registerRecipe(recipeData);
+    public ResponseEntity<Map<String, Object>> registerRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
+        recipeService.registerRecipe(recipeRequestDto);
 
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
