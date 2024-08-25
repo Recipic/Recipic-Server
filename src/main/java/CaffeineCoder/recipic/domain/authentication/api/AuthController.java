@@ -3,6 +3,8 @@ package CaffeineCoder.recipic.domain.authentication.api;
 import CaffeineCoder.recipic.domain.authentication.infra.kakao.KakaoLoginParams;
 import CaffeineCoder.recipic.domain.authentication.infra.naver.NaverLoginParams;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
+import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenResponseDto;
+import CaffeineCoder.recipic.global.util.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,33 +19,26 @@ public class AuthController {
     private final OAuthLoginService oAuthLoginService;
 
     @PostMapping("/kakao")
-    public ResponseEntity<TokenDto> loginKakao(@RequestBody KakaoLoginParams params,HttpServletResponse response) {
+    public ResponseEntity<?> loginKakao(@RequestBody KakaoLoginParams params,HttpServletResponse response) {
         TokenDto tokenDto = oAuthLoginService.login(params);
-        setRefreshTokenInCookie(response, tokenDto.getRefreshToken());
-        return ResponseEntity.ok(tokenDto);
+        TokenResponseDto tokenResponseDto = JwtUtils.setJwtResponse(response, tokenDto);
+        return ResponseEntity.ok(tokenResponseDto);
     }
 
     @PostMapping("/naver")
-    public ResponseEntity<TokenDto> loginNaver(@RequestBody NaverLoginParams params,HttpServletResponse response) {
+    public ResponseEntity<?> loginNaver(@RequestBody NaverLoginParams params,HttpServletResponse response) {
         TokenDto tokenDto = oAuthLoginService.login(params);
-        setRefreshTokenInCookie(response, tokenDto.getRefreshToken());
-        return ResponseEntity.ok(tokenDto);
+        TokenResponseDto tokenResponseDto = JwtUtils.setJwtResponse(response, tokenDto);
+        return ResponseEntity.ok(tokenResponseDto);
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<TokenDto> issueAdmin(HttpServletResponse response) {
+    public ResponseEntity<?> issueAdmin(HttpServletResponse response) {
         TokenDto tokenDto = oAuthLoginService.issueAdmin();
-        setRefreshTokenInCookie(response, tokenDto.getRefreshToken());
-        return ResponseEntity.ok(tokenDto);
+        TokenResponseDto tokenResponseDto = JwtUtils.setJwtResponse(response, tokenDto);
+        return ResponseEntity.ok(tokenResponseDto);
     }
 
-    private void setRefreshTokenInCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);  // JS로 쿠키 접근 못하게 설정 (보안 강화)
-        cookie.setPath("/");  // 쿠키가 유효한 경로 설정
-        cookie.setMaxAge(7 * 24 * 60 * 60);  // 쿠키의 만료 시간 설정 (예: 7일)
-        response.addCookie(cookie);
-    }
 
 
 }
