@@ -9,6 +9,7 @@ import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,13 @@ public class CommentService {
             throw new IllegalArgumentException("Invalid commentId");
         }
 
+        // 댓글 작성자 본인이 좋아요를 시도하는 경우
+        Comment comment = commentRepository.findById(requestDto.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid commentId"));
+        if (comment.getUserId().equals(userId)) {
+            throw new AccessDeniedException("You cannot like your own comment");
+        }
+
         // 이미 좋아요를 눌렀는지 확인
         Optional<CommentLike> existingLike = commentLikeRepository.findByUserIdAndCommentId(userId, requestDto.getCommentId());
 
@@ -78,5 +86,4 @@ public class CommentService {
             return true;  // 좋아요 추가
         }
     }
-
 }
