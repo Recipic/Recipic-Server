@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.global;
+package CaffeineCoder.recipic.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
