@@ -37,11 +37,18 @@ public class BrandController {
         String brandName = (String) request.get("brandName");
         String ingredientName = (String) request.get("ingredientName");
 
-          Long quantity = Long.valueOf(request.get("quantity").toString());
+        // quantity는 클라이언트에서 Long 타입으로 보내야함
+        Long quantity = request.get("quantity") instanceof Integer
+                ? Long.valueOf((Integer) request.get("quantity"))
+                : (Long) request.get("quantity");
 
         String unit = (String) request.get("unit");
         Integer cost = (Integer) request.get("cost");
-        Double calorie = (Double) request.get("calorie");
+
+        // calorie는 Double로 변환
+        Double calorie = request.get("calorie") instanceof Integer
+                ? Double.valueOf((Integer) request.get("calorie"))
+                : (Double) request.get("calorie");
 
         boolean success = brandService.addIngredientToBrand(brandName, ingredientName, quantity, unit, cost, calorie);
 
