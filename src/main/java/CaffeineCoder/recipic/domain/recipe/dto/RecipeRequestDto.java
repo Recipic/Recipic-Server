@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class RecipeRequestDto {
 
+    private String recipeId;
     private String userId;
     private Integer brandId;
     private String title;

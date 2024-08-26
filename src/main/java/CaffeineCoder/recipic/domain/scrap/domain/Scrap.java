@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.scrap.domain;
 
+import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,4 +33,8 @@ public class Scrap {
         this.recipeId = recipeId;
         this.createdAt = createdAt != null ? createdAt : new Timestamp(System.currentTimeMillis());
     }
+
+    @ManyToOne
+    @JoinColumn(name = "recipe_id", insertable = false, updatable = false)
+    private Recipe recipe;
 }
