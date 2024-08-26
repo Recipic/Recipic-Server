@@ -115,7 +115,7 @@ public class CommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 사용자가 작성한 댓글 목록을 가져오기
+        // 사용자가 작성한 댓글 목록 가져옴
         List<Comment> comments = commentRepository.findByUserId(userId);
 
         // 댓글 목록을 CommentResponseDto로 변환하여 반환
@@ -123,7 +123,7 @@ public class CommentService {
             Recipe recipe = recipeRepository.findById(comment.getRecipeId())
                     .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
             int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
-            return new CommentResponseDto(recipe.getTitle(), comment.getContent(), likeCount);
+            return new CommentResponseDto(comment, recipe.getTitle(), likeCount);
         }).collect(Collectors.toList());
     }
 

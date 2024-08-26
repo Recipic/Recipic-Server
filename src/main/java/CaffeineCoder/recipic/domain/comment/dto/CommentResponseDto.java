@@ -6,13 +6,15 @@ import lombok.Getter;
 @Getter
 public class CommentResponseDto {
 
+    private final Integer commentId;
     private final String recipeTitle;
     private final String content;
     private final int likeCount;
 
-    public CommentResponseDto(String recipeTitle, String content, int likeCount) {
+    public CommentResponseDto(Comment comment, String recipeTitle, int likeCount) {
+        this.commentId = comment.getCommentId();
         this.recipeTitle = recipeTitle;
-        this.content = content;
+        this.content = comment.getContent();
         this.likeCount = likeCount;
     }
 }
