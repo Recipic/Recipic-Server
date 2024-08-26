@@ -1,10 +1,9 @@
 package CaffeineCoder.recipic.domain.recipe.domain;
 
+import CaffeineCoder.recipic.domain.comment.domain.Comment;
+import CaffeineCoder.recipic.domain.scrap.domain.Scrap;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -44,9 +43,15 @@ public class Recipe {
     @Column(name = "status")
     private Integer status;
 
-    // 연관 관계 매핑 (optional)
-    @OneToMany(mappedBy = "recipe")
+    // 연관 관계 매핑
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE)
     private List<RecipeIngredient> recipeIngredients;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE)
+    private List<Scrap> scraps;
 
     @Builder
     public Recipe(Long userId, Integer brandId, String title, String description, String imageUrl, Boolean isCelebrity, Timestamp createdAt, Integer status) {
@@ -56,7 +61,7 @@ public class Recipe {
         this.description = description;
         this.imageUrl = imageUrl;
         this.isCelebrity = isCelebrity;
-        this.createdAt = createdAt;
+        this.createdAt = createdAt != null ? createdAt : new Timestamp(System.currentTimeMillis());
         this.status = status;
     }
 }

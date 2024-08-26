@@ -1,9 +1,8 @@
 package CaffeineCoder.recipic.domain.comment.domain;
 
+import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -36,4 +35,8 @@ public class Comment {
         this.content = content;
         this.createdAt = createdAt != null ? createdAt : new Timestamp(System.currentTimeMillis());
     }
+
+    @ManyToOne
+    @JoinColumn(name = "recipe_id", insertable = false, updatable = false)
+    private Recipe recipe;
 }

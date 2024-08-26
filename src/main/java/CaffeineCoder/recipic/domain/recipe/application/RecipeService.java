@@ -2,6 +2,7 @@ package CaffeineCoder.recipic.domain.recipe.application;
 
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
+import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -9,19 +10,17 @@ import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.IncludeIngredientDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeDetailResponseDto;
-import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +30,7 @@ public class RecipeService {
     private final BrandRepository brandRepository;
     private final IngredientRepository ingredientRepository;
     private final ScrapRepository scrapRepository;
-
+    private final CommentRepository commentRepository; // CommentRepository 주입
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
         // Recipe 엔티티 생성
@@ -100,11 +99,31 @@ public class RecipeService {
                 .createdAt(recipe.getCreatedAt().toString())
                 .status(recipe.getStatus().toString())
                 .scrapCount(scrapCount)
-                .IncludeIngredients(IncludeIngredients)  // Add selectedRecipes here
+                .IncludeIngredients(IncludeIngredients)
                 .build();
     }
 
+    @Transactional
+    public boolean deleteRecipe(Integer recipeId) {
+        // 현재 인증된 사용자의 ID를 가져옵니다.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(authentication.getName());
 
+        // 해당 ID의 레시피를 찾습니다.
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
+        // 레시피 작성자와 현재 사용자가 같은지 확인
+        if (!recipe.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You are not authorized to delete this recipe");
+        }
 
+        // 레시피와 관련된 스크랩과 댓글 삭제
+        scrapRepository.deleteByRecipeId(recipeId);
+        commentRepository.deleteByRecipeId(recipeId);
+
+        // 레시피 삭제
+        recipeRepository.deleteById(recipeId);
+        return true;
+    }
 }

@@ -14,5 +14,4 @@ public class IncludeIngredientDto {
         this.count = count;
     }
 
-    // Getters and Setters
 }
