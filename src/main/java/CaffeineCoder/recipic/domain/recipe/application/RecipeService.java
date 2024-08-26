@@ -2,7 +2,10 @@ package CaffeineCoder.recipic.domain.recipe.application;
 
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
+import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
+import CaffeineCoder.recipic.domain.comment.domain.Comment;
+import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -13,6 +16,7 @@ import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,10 +39,10 @@ public class RecipeService {
     private final IngredientRepository ingredientRepository;
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
-        // Recipe 엔티티 생성
         Recipe recipe = Recipe.builder()
                 .userId(Long.valueOf(recipeRequestDto.getUserId()))
                 .brandId(recipeRequestDto.getBrandId())
@@ -50,10 +54,8 @@ public class RecipeService {
                 .status(1)
                 .build();
 
-        // Recipe 저장
         Recipe savedRecipe = recipeRepository.save(recipe);
 
-        // RecipeIngredient 저장
         List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
                 .map(selectedRecipe -> {
                     RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
@@ -71,7 +73,6 @@ public class RecipeService {
                 })
                 .collect(Collectors.toList());
 
-        // 모든 RecipeIngredient 저장
         recipeIngredientRepository.saveAll(recipeIngredients);
     }
 
@@ -82,15 +83,23 @@ public class RecipeService {
         // Fetch scrap count
         int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
-        // Fetch selected ingredients (RecipeIngredient entities)
         List<RecipeIngredient> ingredients = recipeIngredientRepository.findByRecipeId(recipeId);
 
-        // Map RecipeIngredient entities to SelectedRecipeDto
         List<IncludeIngredientDto> IncludeIngredients = ingredients.stream()
                 .map(ingredient -> IncludeIngredientDto.builder()
                         .ingredientId(ingredient.getIngredient().getIngredientId())
                         .count(ingredient.getCount())
                         .build())
+                .collect(Collectors.toList());
+
+        List<Comment> comments = commentRepository.findByRecipeId(recipeId);
+
+        // Map Comment entities to CommentDto with like count
+        List<CommentDto> commentDtos = comments.stream()
+                .map(comment -> {
+                    int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+                    return CommentDto.fromEntity(comment, likeCount);  // 좋아요 수와 함께 매핑
+                })
                 .collect(Collectors.toList());
 
         return RecipeDetailResponseDto.builder()
@@ -104,7 +113,8 @@ public class RecipeService {
                 .createdAt(recipe.getCreatedAt().toString())
                 .status(recipe.getStatus().toString())
                 .scrapCount(scrapCount)
-                .IncludeIngredients(IncludeIngredients)  // Add selectedRecipes here
+                .IncludeIngredients(IncludeIngredients)
+                .comments(commentDtos)
                 .build();
     }
 
@@ -195,6 +205,53 @@ public class RecipeService {
 
         return recipeResponseDtos;
     }
+
+    public List<RecipeResponseDto> getUserQueriedScrapedRecipes(String keyword, int page, int size, List<Integer> recipeIds) {
+        if(keyword == ""){
+            return getUserAllScrapedRecipes(page, size, recipeIds);
+        }
+
+        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+
+        if(brandId.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecipeDto> recipeDtoPages = recipeRepository.findRecipesByBrandIdAndRecipeIds(
+                brandId.get(), recipeIds, pageable);
+
+        List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+            int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+            int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+    public List<RecipeResponseDto> getUserAllScrapedRecipes(int page, int size, List<Integer> recipeIds) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecipeDto> recipeDtoPages = recipeRepository.findRecipesByRecipeIds(recipeIds, pageable);
+
+        List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+
 
 
 

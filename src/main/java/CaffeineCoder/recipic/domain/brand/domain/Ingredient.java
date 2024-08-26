@@ -17,7 +17,7 @@ public class Ingredient {
     private String ingredientName;  // 재료 이름
 
     @Column(name = "quantity")
-    private String quantity;  // 양
+    private Long quantity; // 양
 
     @Column(name = "unit")
     private String unit;  // 단위
@@ -29,7 +29,7 @@ public class Ingredient {
     private Double calorie;  // 칼로리
 
     @Builder
-    public Ingredient(String ingredientName, String quantity, String unit, Integer cost, Double calorie) {
+    public Ingredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
         this.ingredientName = ingredientName;
         this.quantity = quantity;
         this.unit = unit;
