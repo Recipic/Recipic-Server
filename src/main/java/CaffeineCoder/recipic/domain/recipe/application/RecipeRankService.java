@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.recipe.application;
 
+import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RecipeRankService {
     private final RecipeRepository recipeRepository;
     private final ScrapRepository scrapRepository;
+    private final CommentRepository commentRepository;
 
     public List<?> getNormalRank() {
         return recipeRepository.findAll();
@@ -30,7 +32,8 @@ public class RecipeRankService {
         for(int i=0; i<topRecipeIds.size(); i++){
             Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
             int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount));
+            int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount));
         }
 
 
@@ -46,7 +49,8 @@ public class RecipeRankService {
         for(int i=0; i<topRecipeIds.size(); i++){
             Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
             int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount));
+            int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount));
         }
 
         return topRecipes;

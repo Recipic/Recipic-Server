@@ -14,14 +14,15 @@ public record RecipeResponseDto(
     Boolean isCelebrity,
     Timestamp createdAt,
     Integer status,
-    Integer scrapCount
+    Integer scrapCount,
+    Integer commentCount
 ) {
-    public static RecipeResponseDto of(Integer recipeId, Long userId, Integer brandId, String title, String description, String imageUrl, Boolean isCelebrity, Timestamp createdAt, Integer status, Integer scrapCount) {
-        return new RecipeResponseDto(recipeId, userId, brandId, title, description, imageUrl, isCelebrity, createdAt, status, scrapCount);
+    public static RecipeResponseDto of(Integer recipeId, Long userId, Integer brandId, String title, String description, String imageUrl, Boolean isCelebrity, Timestamp createdAt, Integer status, Integer scrapCount, Integer commentCount) {
+        return new RecipeResponseDto(recipeId, userId, brandId, title, description, imageUrl, isCelebrity, createdAt, status, scrapCount, commentCount);
     }
 
     //추후 댓글 개수도 추가
-    public static RecipeResponseDto fromEntity(Recipe recipe, int scrapCount) {
+    public static RecipeResponseDto fromEntity(Recipe recipe, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipe.getRecipeId(),
                 recipe.getUserId(),
@@ -32,11 +33,12 @@ public record RecipeResponseDto(
                 recipe.getIsCelebrity(),
                 recipe.getCreatedAt(),
                 recipe.getStatus(),
-                scrapCount
+                scrapCount,
+                commentCount
         );
     }
     
-    public static RecipeResponseDto fromDto(RecipeDto recipeDto, int scrapCount) {
+    public static RecipeResponseDto fromDto(RecipeDto recipeDto, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipeDto.recipeId(),
                 recipeDto.userId(),
@@ -47,7 +49,8 @@ public record RecipeResponseDto(
                 recipeDto.isCelebrity(),
                 recipeDto.createdAt(),
                 recipeDto.status(),
-                scrapCount
+                scrapCount,
+                commentCount
         );
     }
 }

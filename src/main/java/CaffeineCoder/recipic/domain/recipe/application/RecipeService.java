@@ -2,6 +2,7 @@ package CaffeineCoder.recipic.domain.recipe.application;
 
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
+import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -30,6 +31,7 @@ public class RecipeService {
     private final BrandRepository brandRepository;
     private final IngredientRepository ingredientRepository;
     private final ScrapRepository scrapRepository;
+    private final CommentRepository commentRepository;
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
@@ -124,7 +126,8 @@ public class RecipeService {
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
                 .map(recipeDto -> {
                     int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount);
+                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
                 })
                 .collect(Collectors.toList());
 
@@ -139,7 +142,8 @@ public class RecipeService {
         List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
                 .map(recipe -> {
                     int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
-                    return RecipeResponseDto.fromEntity(recipe, scrapCount);
+                    int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
+                    return RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount);
                 })
                 .collect(Collectors.toList());
 
