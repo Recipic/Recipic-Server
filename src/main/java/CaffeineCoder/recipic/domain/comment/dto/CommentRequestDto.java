@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentRequestDto {
 
-    private Long userId;
     private Integer recipeId;
     private String comment;
 
-    public CommentRequestDto(Long userId, Integer recipeId, String comment) {
-        this.userId = userId;
+    public CommentRequestDto(Integer recipeId, String comment) {
         this.recipeId = recipeId;
         this.comment = comment;
     }
