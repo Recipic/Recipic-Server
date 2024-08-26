@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -113,7 +110,7 @@ public class RecipeService {
 
     public List<?> getQueriedRecipes(String keyword, int page, int size) {
         if(keyword == ""){
-            return getAllRecipes(page, size);
+            return getAllRecipes(keyword, page, size);
         }
 
         Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
@@ -138,7 +135,7 @@ public class RecipeService {
 
     }
 
-    public List<RecipeResponseDto> getAllRecipes(int page, int size) {
+    public List<RecipeResponseDto> getAllRecipes(String keyword, int page, int size) {
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
         List<Recipe> recipes = recipePage.getContent();
 
@@ -153,99 +150,5 @@ public class RecipeService {
         return recipeResponseDtos;
     }
 
-    public List<RecipeResponseDto> getUserQueriedRecipes(String keyword, int page, int size, Long userId) {
-        if(keyword == ""){
-            return getAllUserRecipes(page, size, userId);
-        }
 
-        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
-
-        if(brandId.isEmpty()){
-            return Collections.emptyList();
-        }
-
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandIdAndUserId(brandId.get(), userId, PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
-
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
-                .collect(Collectors.toList());
-
-        return recipeResponseDtos;
-
-    }
-
-    public List<RecipeResponseDto> getAllUserRecipes(int page, int size, Long userId) {
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByUserId(userId, PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
-
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
-                .collect(Collectors.toList());
-
-        return recipeResponseDtos;
-    }
-
-
-
-    @Transactional
-    public boolean deleteRecipe(Integer recipeId) {
-        // 현재 인증된 사용자의 ID
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
-
-        // 해당 ID의 레시피 찾기
-        Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-
-        // 레시피 작성자와 현재 사용자가 같은지 확인
-        if (!recipe.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("You are not authorized to delete this recipe");
-        }
-
-        // 레시피와 관련된 스크랩과 댓글 삭제
-        scrapRepository.deleteByRecipeId(recipeId);
-        commentRepository.deleteByRecipeId(recipeId);
-
-        // 레시피 삭제
-        recipeRepository.deleteById(recipeId);
-        return true;
-    }
-
-    @Transactional
-    public boolean updateRecipe(RecipeRequestDto recipeRequestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
-
-        // 수정할 게시글을 찾기
-        Recipe recipe = recipeRepository.findById(Integer.parseInt(recipeRequestDto.getRecipeId()))
-                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-
-        // 게시글 작성자와 현재 사용자가 같은지 확인
-        if (!recipe.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("You are not authorized to update this recipe");
-        }
-
-        // 게시글 수정
-        recipe.updateRecipe(
-                recipeRequestDto.getTitle(),
-                recipeRequestDto.getDescription(),
-                recipeRequestDto.getThumbnailUrl(),
-                recipeRequestDto.getBrandId(),
-                recipeRequestDto.getIsCelebrity()
-        );
-
-        recipeRepository.save(recipe);
-        return true;
-    }
 }
