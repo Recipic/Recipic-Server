@@ -38,7 +38,6 @@ public class RecipeController {
             @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        System.out.printf("keyword: %s, page: %d, size: %d\n", keyword, page, size);
         return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
     }
 
