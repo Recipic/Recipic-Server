@@ -10,16 +10,23 @@ import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.IncludeIngredientDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeDetailResponseDto;
+import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
+import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +37,7 @@ public class RecipeService {
     private final BrandRepository brandRepository;
     private final IngredientRepository ingredientRepository;
     private final ScrapRepository scrapRepository;
-    private final CommentRepository commentRepository; // CommentRepository 주입
+    private final CommentRepository commentRepository;
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
         // Recipe 엔티티 생성
@@ -109,7 +116,7 @@ public class RecipeService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 해당 ID의 레시피 찾기
+        // 해당 ID의 레시피를 찾습니다.
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
@@ -132,7 +139,7 @@ public class RecipeService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 수정할 게시글을 찾기
+        // 수정할 게시글을 찾습니다.
         Recipe recipe = recipeRepository.findById(Integer.parseInt(recipeRequestDto.getRecipeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
@@ -153,4 +160,46 @@ public class RecipeService {
         recipeRepository.save(recipe);
         return true;
     }
+
+    public List<?> getQueriedRecipes(String keyword, int page, int size) {
+        if(keyword == ""){
+            return getAllRecipes(keyword, page, size);
+        }
+
+        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+
+        if(brandId.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandId(brandId.get(), PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+
+    }
+
+    public List<RecipeResponseDto> getAllRecipes(String keyword, int page, int size) {
+        Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+        List<Recipe> recipes = recipePage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
+                .map(recipe -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
+                    return RecipeResponseDto.fromEntity(recipe, scrapCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+
 }

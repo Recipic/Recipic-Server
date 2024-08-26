@@ -23,7 +23,6 @@ public class RecipeController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
         recipeService.registerRecipe(recipeRequestDto);
-
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
 
@@ -51,4 +50,12 @@ public class RecipeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/list")
+    public ApiResponse<?> getScraps(
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        System.out.printf("keyword: %s, page: %d, size: %d\n", keyword, page, size);
+        return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
+    }
 }
