@@ -20,7 +20,7 @@ public record RecipeResponseDto(
         return new RecipeResponseDto(recipeId, userId, brandId, title, description, imageUrl, isCelebrity, createdAt, status, scrapCount);
     }
 
-    //추후 댓글 개수도 추가
+    // 추후 댓글 개수도 추가
     public static RecipeResponseDto fromEntity(Recipe recipe, int scrapCount) {
         return new RecipeResponseDto(
                 recipe.getRecipeId(),

@@ -18,4 +18,3 @@ public record RecipeDto(
         return new RecipeDto(recipeId, userId, brandId, title, description, imageUrl, isCelebrity, createdAt, status);
     }
 }
-

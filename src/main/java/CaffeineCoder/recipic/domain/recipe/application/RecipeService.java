@@ -162,17 +162,17 @@ public class RecipeService {
     }
 
     public List<?> getQueriedRecipes(String keyword, int page, int size) {
-        if(keyword == ""){
+        if (keyword.isEmpty()) {
             return getAllRecipes(keyword, page, size);
         }
 
-        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+        Optional<Integer> brandId = brandRepository.findBrandIdByBrandName(keyword);
 
-        if(brandId.isEmpty()){
+        if (brandId.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandId(brandId.get(), PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandId(brandId.get(), PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
 
@@ -188,7 +188,7 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getAllRecipes(String keyword, int page, int size) {
-        Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+        Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
         List<Recipe> recipes = recipePage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
@@ -200,6 +200,4 @@ public class RecipeService {
 
         return recipeResponseDtos;
     }
-
-
 }
