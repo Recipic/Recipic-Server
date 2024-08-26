@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.recipe.dto;
 
+import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,12 +18,13 @@ public class RecipeDetailResponseDto {
     String createdAt;
     String status;
     int scrapCount;
-    List<IncludeIngredientDto> IncludeIngredients; // Add this field
+    List<IncludeIngredientDto> IncludeIngredients;
+    List<CommentDto> comments;
 
-    // Constructors, Getters, Setters
+
 
     @Builder
-    public RecipeDetailResponseDto(String recipeId, String userId, String brandId, String title, String description, String imageUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
+    public RecipeDetailResponseDto(String recipeId, String userId, String brandId, String title, String description, String imageUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients, List<CommentDto> comments) {
         this.recipeId = recipeId;
         this.userId = userId;
         this.brandId = brandId;
@@ -34,5 +36,6 @@ public class RecipeDetailResponseDto {
         this.status = status;
         this.scrapCount = scrapCount;
         this.IncludeIngredients = IncludeIngredients;
+        this.comments = comments;
     }
 }
