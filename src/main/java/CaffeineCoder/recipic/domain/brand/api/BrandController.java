@@ -36,7 +36,9 @@ public class BrandController {
     public ResponseEntity<Map<String, Object>> addIngredientToBrand(@RequestBody Map<String, Object> request) {
         String brandName = (String) request.get("brandName");
         String ingredientName = (String) request.get("ingredientName");
-        String quantity = (String) request.get("quantity");
+
+          Long quantity = Long.valueOf(request.get("quantity").toString());
+
         String unit = (String) request.get("unit");
         Integer cost = (Integer) request.get("cost");
         Double calorie = (Double) request.get("calorie");

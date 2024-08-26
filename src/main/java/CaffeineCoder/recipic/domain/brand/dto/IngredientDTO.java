@@ -7,7 +7,7 @@ public class IngredientDTO {
 
     private final Integer ingredientId;  // 재료 ID
     private final String name;  // 재료명
-    private final String quantity;  // 양
+    private final Long quantity;  // 양
     private final String unit;  // 단위
     private final Integer cost;  // 비용
     private final Double calorie;  // 칼로리
@@ -24,7 +24,7 @@ public class IngredientDTO {
     public static class Builder {
         private Integer ingredientId;
         private String name;
-        private String quantity;
+        private Long quantity;
         private String unit;
         private Integer cost;
         private Double calorie;
@@ -41,7 +41,7 @@ public class IngredientDTO {
             return this;
         }
 
-        public Builder quantity(String quantity) {
+        public Builder quantity(Long quantity) {
             this.quantity = quantity;
             return this;
         }
@@ -74,7 +74,7 @@ public class IngredientDTO {
         return name;
     }
 
-    public String getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
