@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -28,6 +29,25 @@ public class RecipeController {
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
 
+    @DeleteMapping("/remove")
+    public ResponseEntity<Map<String, Object>> deleteRecipe(@RequestBody Map<String, Integer> request) {
+        Integer recipeId = request.get("recipeId");
+        boolean isSuccess = recipeService.deleteRecipe(recipeId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", isSuccess);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
+        boolean isSuccess = recipeService.updateRecipe(recipeRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", isSuccess);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/detail/{recipeId}")
     public ApiResponse<?> getRecipeDetail(@PathVariable("recipeId") Integer recipeId) {
         return ApiUtils.success(recipeService.getRecipeDetail(recipeId));
@@ -41,5 +61,7 @@ public class RecipeController {
         System.out.printf("keyword: %s, page: %d, size: %d\n", keyword, page, size);
         return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
     }
+
+
 
 }

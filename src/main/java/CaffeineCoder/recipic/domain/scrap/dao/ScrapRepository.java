@@ -21,4 +21,7 @@ public interface ScrapRepository extends JpaRepository<Scrap, Integer> {
     List<Integer> findTop5CelebrityRecipesByScrapCount(Pageable pageable);
 
     int countByRecipeId(Integer recipeId);
+
+    void deleteByRecipeId(Integer recipeId);
+
 }
