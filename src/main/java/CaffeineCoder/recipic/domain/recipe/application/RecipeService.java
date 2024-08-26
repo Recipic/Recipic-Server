@@ -13,6 +13,7 @@ import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -195,6 +196,58 @@ public class RecipeService {
 
         return recipeResponseDtos;
     }
+
+    public List<RecipeResponseDto> getUserQueriedScrapedRecipes(String keyword, int page, int size, List<Integer> recipeIds) {
+        // 유저가 스크랩한 레시피 ID 리스트 가져오기
+        if(keyword == ""){
+            return getUserAllScrapedRecipes(page, size, recipeIds);
+        }
+
+        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+
+        if(brandId.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        // 레시피를 페이지네이션하여 조회
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecipeDto> recipeDtoPages = recipeRepository.findRecipesByBrandIdAndRecipeIds(
+                brandId.get(), recipeIds, pageable);
+
+        // RecipeDto -> RecipeResponseDto 변환
+        List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+            int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+            int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+    public List<RecipeResponseDto> getUserAllScrapedRecipes(int page, int size, List<Integer> recipeIds) {
+        // 유저가 스크랩한 레시피 ID 리스트 가져오기
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RecipeDto> recipeDtoPages = recipeRepository.findRecipesByRecipeIds(recipeIds, pageable);
+
+        // RecipeDto -> RecipeResponseDto 변환
+        List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+
 
 
 

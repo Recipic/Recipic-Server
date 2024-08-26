@@ -4,6 +4,7 @@ import CaffeineCoder.recipic.domain.scrap.domain.Scrap;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,5 +24,8 @@ public interface ScrapRepository extends JpaRepository<Scrap, Integer> {
     int countByRecipeId(Integer recipeId);
 
     void deleteByRecipeId(Integer recipeId);
+
+    @Query("SELECT s.recipeId FROM Scrap s WHERE s.userId = :userId")
+    List<Integer> findRecipeIdsByUserId(@Param("userId") Long userId);
 
 }
