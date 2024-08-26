@@ -7,19 +7,18 @@ import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
-import CaffeineCoder.recipic.domain.recipe.dto.IncludeIngredientDto;
-import CaffeineCoder.recipic.domain.recipe.dto.RecipeDetailResponseDto;
-import CaffeineCoder.recipic.domain.recipe.dto.RecipeDto;
-import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
+import CaffeineCoder.recipic.domain.recipe.dto.*;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -105,6 +104,47 @@ public class RecipeService {
     }
 
 
+
+
+    public List<?> getQueriedRecipes(String keyword, int page, int size) {
+        if(keyword == ""){
+            return getAllRecipes(keyword, page, size);
+        }
+
+        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+
+        if(brandId.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandId(brandId.get(), PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+
+    }
+
+    public List<RecipeResponseDto> getAllRecipes(String keyword, int page, int size) {
+        Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+        List<Recipe> recipes = recipePage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
+                .map(recipe -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
+                    return RecipeResponseDto.fromEntity(recipe, scrapCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
 
 
 }
