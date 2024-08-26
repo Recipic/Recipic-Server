@@ -42,4 +42,13 @@ public class RecipeController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
+        boolean isSuccess = recipeService.updateRecipe(recipeRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", isSuccess);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -64,4 +64,13 @@ public class Recipe {
         this.createdAt = createdAt != null ? createdAt : new Timestamp(System.currentTimeMillis());
         this.status = status;
     }
+
+    // 게시글 수정 메소드
+    public void updateRecipe(String title, String description, String imageUrl, Integer brandId, Boolean isCelebrity) {
+        this.title = title;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.brandId = brandId;
+        this.isCelebrity = isCelebrity;
+    }
 }

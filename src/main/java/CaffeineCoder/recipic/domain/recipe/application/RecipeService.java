@@ -105,11 +105,11 @@ public class RecipeService {
 
     @Transactional
     public boolean deleteRecipe(Integer recipeId) {
-        // 현재 인증된 사용자의 ID를 가져옵니다.
+        // 현재 인증된 사용자의 ID
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 해당 ID의 레시피를 찾습니다.
+        // 해당 ID의 레시피 찾기
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
@@ -124,6 +124,33 @@ public class RecipeService {
 
         // 레시피 삭제
         recipeRepository.deleteById(recipeId);
+        return true;
+    }
+
+    @Transactional
+    public boolean updateRecipe(RecipeRequestDto recipeRequestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(authentication.getName());
+
+        // 수정할 게시글을 찾기
+        Recipe recipe = recipeRepository.findById(Integer.parseInt(recipeRequestDto.getRecipeId()))
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+
+        // 게시글 작성자와 현재 사용자가 같은지 확인
+        if (!recipe.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You are not authorized to update this recipe");
+        }
+
+        // 게시글 수정
+        recipe.updateRecipe(
+                recipeRequestDto.getTitle(),
+                recipeRequestDto.getDescription(),
+                recipeRequestDto.getThumbnailUrl(),
+                recipeRequestDto.getBrandId(),
+                recipeRequestDto.getIsCelebrity()
+        );
+
+        recipeRepository.save(recipe);
         return true;
     }
 }
