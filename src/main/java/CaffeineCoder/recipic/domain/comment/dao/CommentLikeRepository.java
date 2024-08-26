@@ -9,7 +9,11 @@ import java.util.Optional;
 @Repository
 public interface CommentLikeRepository extends JpaRepository<CommentLike, Integer> {
     Optional<CommentLike> findByUserIdAndCommentId(Long userId, Integer commentId);
+
     void deleteByUserIdAndCommentId(Long userId, Integer commentId);
 
-    int countByCommentId(int commentId);
+
+    // 댓글 ID로 좋아요 수를 세는 메서드
+    int countByCommentId(Integer commentId);
+
 }

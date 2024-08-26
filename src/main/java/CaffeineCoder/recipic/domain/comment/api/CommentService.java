@@ -5,16 +5,23 @@ import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.comment.domain.Comment;
 import CaffeineCoder.recipic.domain.comment.domain.CommentLike;
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
+import CaffeineCoder.recipic.domain.comment.dto.CommentResponseDto;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
+import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,28 +58,27 @@ public class CommentService {
 
     @Transactional
     public boolean toggleLikeComment(Integer commentId) {
-        // 현재 인증된 사용자의 ID를 가져옵니다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 댓글이 존재하는지 확인합니다.
+        // 댓글이 존재하는지 확인
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
 
-        // 현재 사용자가 자신이 작성한 댓글인지 확인합니다.
+        // 현재 사용자가 자신이 작성한 댓글인지 확인
         if (comment.getUserId().equals(userId)) {
             throw new IllegalArgumentException("You cannot like your own comment");
         }
 
-        // 이미 좋아요를 눌렀는지 확인합니다.
+        // 이미 좋아요를 눌렀는지 확인
         Optional<CommentLike> existingLike = commentLikeRepository.findByUserIdAndCommentId(userId, commentId);
 
         if (existingLike.isPresent()) {
-            // 좋아요를 이미 눌렀다면 좋아요를 취소합니다.
+            // 좋아요를 이미 눌렀다면 좋아요를 취소
             commentLikeRepository.delete(existingLike.get());
             return false; // 좋아요 취소를 나타내기 위해 false 반환
         } else {
-            // 좋아요를 누르지 않았다면 좋아요를 추가합니다.
+            // 좋아요를 누르지 않았다면 좋아요를 추가
             CommentLike commentLike = CommentLike.builder()
                     .userId(userId)
                     .commentId(commentId)
@@ -89,15 +95,14 @@ public class CommentService {
     // 댓글 삭제 메소드 추가
     @Transactional
     public boolean deleteComment(Integer commentId) {
-        // 현재 인증된 사용자의 ID를 가져옵니다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 해당 ID의 댓글을 찾습니다.
+        // 해당 ID의 댓글을 찾기
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
 
-        // 댓글 작성자와 현재 사용자가 같은지 확인합니다.
+        // 댓글 작성자와 현재 사용자가 같은지 확인
         if (!comment.getUserId().equals(userId)) {
             throw new IllegalArgumentException("You are not authorized to delete this comment");
         }
@@ -107,5 +112,24 @@ public class CommentService {
         return true;
     }
 
+    // 내 작성한 댓글 목록 메소드 (페이징 및 키워드 검색 기능 추가)
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDto> getUserComments(String keyword, int page, int size, Long userId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> comments;
+
+        if (keyword == null || keyword.isEmpty()) {
+            comments = commentRepository.findByUserId(userId, pageable);
+        } else {
+            comments = commentRepository.findByUserIdAndContentContaining(userId, keyword, pageable);
+        }
+
+        return comments.map(comment -> {
+            Recipe recipe = recipeRepository.findById(comment.getRecipeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+            int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+            return new CommentResponseDto(comment, recipe.getTitle(), likeCount);
+        });
+    }
 
 }
