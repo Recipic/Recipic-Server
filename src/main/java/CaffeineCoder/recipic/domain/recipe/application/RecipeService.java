@@ -113,7 +113,7 @@ public class RecipeService {
 
     public List<?> getQueriedRecipes(String keyword, int page, int size) {
         if(keyword == ""){
-            return getAllRecipes(keyword, page, size);
+            return getAllRecipes(page, size);
         }
 
         Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
@@ -138,7 +138,7 @@ public class RecipeService {
 
     }
 
-    public List<RecipeResponseDto> getAllRecipes(String keyword, int page, int size) {
+    public List<RecipeResponseDto> getAllRecipes(int page, int size) {
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
         List<Recipe> recipes = recipePage.getContent();
 
@@ -152,6 +152,51 @@ public class RecipeService {
 
         return recipeResponseDtos;
     }
+
+    public List<RecipeResponseDto> getUserQueriedRecipes(String keyword, int page, int size, Long userId) {
+        if(keyword == ""){
+            return getAllUserRecipes(page, size, userId);
+        }
+
+        Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
+
+        if(brandId.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandIdAndUserId(brandId.get(), userId, PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+
+    }
+
+    public List<RecipeResponseDto> getAllUserRecipes(int page, int size, Long userId) {
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByUserId(userId, PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
+
+        List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
+                .map(recipeDto -> {
+                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return recipeResponseDtos;
+    }
+
+
 
     @Transactional
     public boolean deleteRecipe(Integer recipeId) {
