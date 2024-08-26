@@ -44,6 +44,7 @@ public class BrandController {
         Double calorie = (Double) request.get("calorie");
 
         boolean success = brandService.addIngredientToBrand(brandName, ingredientName, quantity, unit, cost, calorie);
+
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("isSuccess", success);
         if (success) {

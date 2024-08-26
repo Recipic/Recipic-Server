@@ -51,11 +51,14 @@ public class BrandService {
     }
 
     public boolean addIngredientToBrand(String brandName, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+
         Optional<Brand> optionalBrand = brandRepository.findByBrandName(brandName);
         if (optionalBrand.isEmpty()) {
             return false;
         }
         Brand brand = optionalBrand.get();
+
+        // 새로운 Ingredient 객체 생성
 
         Ingredient ingredient = Ingredient.builder()
                 .ingredientName(ingredientName)
