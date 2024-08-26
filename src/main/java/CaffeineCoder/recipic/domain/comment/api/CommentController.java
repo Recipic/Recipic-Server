@@ -1,13 +1,11 @@
 package CaffeineCoder.recipic.domain.comment.api;
 
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
-import CaffeineCoder.recipic.domain.comment.dto.CommentResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,10 +47,4 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    //내가 쓴 댓글 목록 메소드
-    @GetMapping("/mycomments")
-    public ResponseEntity<List<CommentResponseDto>> getMyComments() {
-        List<CommentResponseDto> myComments = commentService.getUserComments();
-        return ResponseEntity.ok(myComments);
-    }
 }

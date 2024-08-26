@@ -10,6 +10,9 @@ import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -109,22 +112,24 @@ public class CommentService {
         return true;
     }
 
-    //내가 작성한 댓글 목록 메소드 추가
+    // 내 작성한 댓글 목록 메소드 (페이징 및 키워드 검색 기능 추가)
     @Transactional(readOnly = true)
-    public List<CommentResponseDto> getUserComments() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+    public Page<CommentResponseDto> getUserComments(String keyword, int page, int size, Long userId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> comments;
 
-        // 사용자가 작성한 댓글 목록 가져옴
-        List<Comment> comments = commentRepository.findByUserId(userId);
+        if (keyword == null || keyword.isEmpty()) {
+            comments = commentRepository.findByUserId(userId, pageable);
+        } else {
+            comments = commentRepository.findByUserIdAndContentContaining(userId, keyword, pageable);
+        }
 
-        // 댓글 목록을 CommentResponseDto로 변환하여 반환
-        return comments.stream().map(comment -> {
+        return comments.map(comment -> {
             Recipe recipe = recipeRepository.findById(comment.getRecipeId())
                     .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
             int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
             return new CommentResponseDto(comment, recipe.getTitle(), likeCount);
-        }).collect(Collectors.toList());
+        });
     }
 
 }
