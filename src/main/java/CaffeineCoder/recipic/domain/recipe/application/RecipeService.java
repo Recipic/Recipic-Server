@@ -122,6 +122,7 @@ public class RecipeService {
 
 
     public List<?> getQueriedRecipes(String keyword, int page, int size) {
+        System.out.printf("keyword: %s\n", keyword);
         if(keyword == ""){
             return getAllRecipes(page, size);
         }
