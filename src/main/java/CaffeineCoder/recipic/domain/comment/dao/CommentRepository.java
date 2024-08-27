@@ -18,6 +18,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     void deleteByRecipeId(Integer recipeId);
 
+    List<Comment> findByRecipeId(Integer recipeId);
+
 
     // 특정 사용자가 작성한 댓글을 페이지네이션하여 가져오기
     Page<Comment> findByUserId(Long userId, Pageable pageable);
@@ -25,5 +27,3 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     // 특정 사용자가 작성한 댓글 중 특정 키워드를 포함한 댓글을 페이지네이션하여 가져오기
     Page<Comment> findByUserIdAndContentContaining(Long userId, String content, Pageable pageable);
 }
-
-
