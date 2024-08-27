@@ -122,11 +122,10 @@ public class RecipeService {
 
 
     public List<?> getQueriedRecipes(String keyword, int page, int size) {
-        System.out.printf("keyword: %s\n", keyword);
-        if(keyword == ""){
+        if(keyword.equals("-1")){
             return getAllRecipes(page, size);
         }
-        System.out.printf("keyword2: %s\n", keyword);
+
         Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
 
         if(brandId.isEmpty()){
@@ -150,10 +149,9 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getAllRecipes(int page, int size) {
-        System.out.printf("getallrecipe: %s\n", page);
+
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
-        System.out.printf("recipePage: %s\n", recipePage);
-        System.out.printf("recipePage.getContent(): %s\n", recipePage.getContent());
+
         List<Recipe> recipes = recipePage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
@@ -168,7 +166,7 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getUserQueriedRecipes(String keyword, int page, int size, Long userId) {
-        if(keyword == ""){
+        if(keyword.equals("-1")){
             return getAllUserRecipes(page, size, userId);
         }
 
@@ -211,7 +209,7 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getUserQueriedScrapedRecipes(String keyword, int page, int size, List<Integer> recipeIds) {
-        if(keyword == ""){
+        if(keyword.equals("-1")){
             return getUserAllScrapedRecipes(page, size, recipeIds);
         }
 
