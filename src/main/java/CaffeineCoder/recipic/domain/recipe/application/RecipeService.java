@@ -126,7 +126,7 @@ public class RecipeService {
         if(keyword == ""){
             return getAllRecipes(page, size);
         }
-
+        System.out.printf("keyword2: %s\n", keyword);
         Optional<Integer> brandId= brandRepository.findBrandIdByBrandName(keyword);
 
         if(brandId.isEmpty()){
@@ -150,7 +150,7 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getAllRecipes(int page, int size) {
-
+        System.out.printf("getallrecipe: %s\n", page);
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
         System.out.printf("recipePage: %s\n", recipePage);
         System.out.printf("recipePage.getContent(): %s\n", recipePage.getContent());
