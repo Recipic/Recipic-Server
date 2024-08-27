@@ -11,6 +11,7 @@ import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -112,24 +113,34 @@ public class CommentService {
         return true;
     }
 
-    // 내 작성한 댓글 목록 메소드 (페이징 및 키워드 검색 기능 추가)
+    // 내가 작성한 댓글 목록 메소드 (페이징 및 키워드 검색 기능 추가)
     @Transactional(readOnly = true)
     public Page<CommentResponseDto> getUserComments(String keyword, int page, int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Comment> comments;
 
-        if (keyword == null || keyword.isEmpty()) {
+        if (keyword.isEmpty()) {
             comments = commentRepository.findByUserId(userId, pageable);
         } else {
             comments = commentRepository.findByUserIdAndContentContaining(userId, keyword, pageable);
         }
 
-        return comments.map(comment -> {
-            Recipe recipe = recipeRepository.findById(comment.getRecipeId())
-                    .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-            int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
-            return new CommentResponseDto(comment, recipe.getTitle(), likeCount);
-        });
+        return new PageImpl<>(
+                comments.stream()
+                        .map(comment -> {
+                            // 각 댓글에 대한 likeCount를 계산
+                            int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+                            return new CommentResponseDto(
+                                    comment,
+                                    comment.getRecipe().getTitle(), // Assuming there's a getTitle() in Recipe
+                                    likeCount // 계산된 likeCount 전달
+                            );
+                        })
+                        .collect(Collectors.toList()),
+                pageable,
+                comments.getTotalElements()
+        );
     }
+
 
 }
