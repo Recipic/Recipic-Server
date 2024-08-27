@@ -21,7 +21,7 @@ public class UserScrapApi {
 
     @GetMapping("")
     public ApiResponse<?> getUserRecipes(
-            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "keyword", defaultValue = "-1") String keyword,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         Long userId = SecurityUtil.getCurrentMemberId();

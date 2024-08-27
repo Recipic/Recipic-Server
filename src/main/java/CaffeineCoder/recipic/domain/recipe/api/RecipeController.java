@@ -55,7 +55,7 @@ public class RecipeController {
 
     @GetMapping("/list")
     public ApiResponse<?> getScraps(
-            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "keyword", defaultValue = "-1") String keyword,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
