@@ -20,6 +20,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     List<Comment> findByRecipeId(Integer recipeId);
 
+
     // 특정 사용자가 작성한 댓글을 페이지네이션하여 가져오기
     Page<Comment> findByUserId(Long userId, Pageable pageable);
 
