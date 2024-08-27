@@ -21,7 +21,7 @@ public class BrandController {
 
     // /ingredients 엔드포인트를 GET 방식으로 변경
     @GetMapping("/ingredients")
-    public ResponseEntity<Map<String, Object>> getIngredientsByBrandName(@RequestParam String brandName) {
+    public ResponseEntity<Map<String, Object>> getIngredientsByBrandName(@RequestParam("brandName") String brandName) {
         // @RequestBody 대신 @RequestParam을 사용하여 쿼리 매개변수로 brandName을 받음
         List<Map<String, Object>> ingredients = brandService.getIngredientsByBrandName(brandName);
 

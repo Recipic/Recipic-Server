@@ -55,7 +55,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests((registry) ->
                         registry
                                 .requestMatchers("/page/**").permitAll()
-                                .requestMatchers("/**").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 관련 경로 허용
                                 .anyRequest().authenticated()
