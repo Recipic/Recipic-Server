@@ -149,7 +149,10 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getAllRecipes(int page, int size) {
+
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt")));
+        System.out.printf("recipePage: %s\n", recipePage);
+        System.out.printf("recipePage.getContent(): %s\n", recipePage.getContent());
         List<Recipe> recipes = recipePage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
