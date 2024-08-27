@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
@@ -15,6 +17,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Integer countByRecipeId(@Param("recipeId") Integer recipeId);
 
     void deleteByRecipeId(Integer recipeId);
+
+    List<Comment> findByRecipeId(Integer recipeId);
 
     // 특정 사용자가 작성한 댓글을 페이지네이션하여 가져오기
     Page<Comment> findByUserId(Long userId, Pageable pageable);
