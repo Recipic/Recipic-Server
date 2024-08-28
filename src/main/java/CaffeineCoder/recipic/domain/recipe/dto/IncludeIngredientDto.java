@@ -5,12 +5,12 @@ import lombok.Getter;
 
 @Getter
 public class IncludeIngredientDto {
-    Integer ingredientId;
+    String ingredientName;
     Integer count;
 
     @Builder
-    public IncludeIngredientDto(Integer ingredientId, Integer count) {
-        this.ingredientId = ingredientId;
+    public IncludeIngredientDto(String ingredientName, Integer count) {
+        this.ingredientName = ingredientName;
         this.count = count;
     }
 
