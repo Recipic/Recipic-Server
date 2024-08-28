@@ -46,8 +46,7 @@ public class RecipeService {
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
-        // 현재 인증된 사용자의 ID를 가져옵니다.
-        Long userId = SecurityUtil.getCurrentMemberId(); // SecurityContextHolder에서 직접 가져올 수도 있습니다.
+        Long userId = SecurityUtil.getCurrentMemberId();
 
         Recipe recipe = Recipe.builder()
                 .userId(userId)
