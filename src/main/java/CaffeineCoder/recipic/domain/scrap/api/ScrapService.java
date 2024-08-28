@@ -42,4 +42,8 @@ public class ScrapService {
             return true; // 스크랩 추가 true 반환
         }
     }
+
+    public boolean isScrapped(Long userId, Integer recipeId) {
+        return scrapRepository.findByUserIdAndRecipeId(userId, recipeId).isPresent();
+    }
 }
