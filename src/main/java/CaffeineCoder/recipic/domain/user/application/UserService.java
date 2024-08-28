@@ -1,6 +1,7 @@
 package CaffeineCoder.recipic.domain.user.application;
 
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.domain.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,5 +23,9 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .map(UserResponseDto::of)
                 .orElseThrow(() -> new RuntimeException("유저 정보가 없습니다."));
+    }
+
+    public User findUser(Long userId){
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

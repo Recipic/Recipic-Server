@@ -18,6 +18,7 @@ import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.*;
 import CaffeineCoder.recipic.domain.scrap.api.ScrapService;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
+import CaffeineCoder.recipic.domain.user.application.UserService;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class RecipeService {
     private final UserRepository userRepository;
     private final BrandService brandService;
     private final ScrapService scrapService;
+    private final UserService userService;
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
@@ -169,16 +171,13 @@ public class RecipeService {
         List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
+                .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
 
     }
+
 
     public List<RecipeResponseDto> getAllRecipes(int page, int size) {
 
@@ -186,12 +185,10 @@ public class RecipeService {
 
         List<Recipe> recipes = recipePage.getContent();
 
+
+
         List<RecipeResponseDto> recipeResponseDtos = recipes.stream()
-                .map(recipe -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
-                    return RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount);
-                })
+                .map(this::getRecipeToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
@@ -213,11 +210,7 @@ public class RecipeService {
         List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
+                .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
@@ -230,11 +223,7 @@ public class RecipeService {
         List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
+                .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
@@ -258,11 +247,7 @@ public class RecipeService {
         List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-            int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-            int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
+                .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
@@ -275,11 +260,7 @@ public class RecipeService {
         List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
 
         List<RecipeResponseDto> recipeResponseDtos = recipeDtos.stream()
-                .map(recipeDto -> {
-                    int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
-                    int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-                    return RecipeResponseDto.fromDto(recipeDto, scrapCount, commentCount);
-                })
+                .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
 
         return recipeResponseDtos;
@@ -371,5 +352,28 @@ public class RecipeService {
 
         return true;
     }
+    private RecipeResponseDto getRecipeDtoToRecipeResponseDto(RecipeDto recipeDto) {
+        int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+        int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+        User user = userService.findUser(recipeDto.userId());
+
+        String brandName = brandService.getBrandNameByBrandId(recipeDto.brandId());
+
+        return RecipeResponseDto.fromDto(recipeDto, user, brandName, scrapCount, commentCount);
+    }
+
+    private RecipeResponseDto getRecipeToRecipeResponseDto(Recipe recipe) {
+        RecipeDto recipeDto = RecipeDto.fromEntity(recipe);
+
+        int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
+        int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
+        User user = userService.findUser(recipeDto.userId());
+
+        String brandName = brandService.getBrandNameByBrandId(recipeDto.brandId());
+
+        return RecipeResponseDto.fromDto(recipeDto, user, brandName, scrapCount, commentCount);
+    }
+
+
 
 }

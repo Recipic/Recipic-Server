@@ -1,35 +1,38 @@
 package CaffeineCoder.recipic.domain.recipe.dto;
 
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
+import CaffeineCoder.recipic.domain.user.domain.User;
 
 import java.sql.Timestamp;
 
 public record RecipeResponseDto(
     Integer recipeId,
-    Long userId,
-    Integer brandId,
+    String userNickName,
+    String userProfileImageUrl,
     String title,
+    String thumbnailUrl,
+    String brandName,
     String description,
-    String imageUrl,
     Boolean isCelebrity,
     Timestamp createdAt,
     Integer status,
     Integer scrapCount,
     Integer commentCount
 ) {
-    public static RecipeResponseDto of(Integer recipeId, Long userId, Integer brandId, String title, String description, String imageUrl, Boolean isCelebrity, Timestamp createdAt, Integer status, Integer scrapCount, Integer commentCount) {
-        return new RecipeResponseDto(recipeId, userId, brandId, title, description, imageUrl, isCelebrity, createdAt, status, scrapCount, commentCount);
+    public static RecipeResponseDto of(Integer recipeId, String userName,String userProfileImageUrl, String title, String thumbnailUrl,String brandName,String description, Boolean isCelebrity, Timestamp createdAt, Integer status, Integer scrapCount, Integer commentCount) {
+        return new RecipeResponseDto(recipeId, userName,userProfileImageUrl, title,thumbnailUrl,brandName, description, isCelebrity, createdAt, status, scrapCount, commentCount);
     }
 
     //추후 댓글 개수도 추가
-    public static RecipeResponseDto fromEntity(Recipe recipe, int scrapCount, int commentCount) {
+    public static RecipeResponseDto fromEntity(Recipe recipe, User user,String brandName, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipe.getRecipeId(),
-                recipe.getUserId(),
-                recipe.getBrandId(),
+                user.getNickName(),
+                user.getProfileImageUrl(),
                 recipe.getTitle(),
-                recipe.getDescription(),
                 recipe.getImageUrl(),
+                brandName,
+                recipe.getDescription(),
                 recipe.getIsCelebrity(),
                 recipe.getCreatedAt(),
                 recipe.getStatus(),
@@ -38,14 +41,15 @@ public record RecipeResponseDto(
         );
     }
     
-    public static RecipeResponseDto fromDto(RecipeDto recipeDto, int scrapCount, int commentCount) {
+    public static RecipeResponseDto fromDto(RecipeDto recipeDto,User user,String brandName, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipeDto.recipeId(),
-                recipeDto.userId(),
-                recipeDto.brandId(),
+                user.getNickName(),
+                user.getProfileImageUrl(),
                 recipeDto.title(),
                 recipeDto.description(),
                 recipeDto.imageUrl(),
+                brandName,
                 recipeDto.isCelebrity(),
                 recipeDto.createdAt(),
                 recipeDto.status(),
