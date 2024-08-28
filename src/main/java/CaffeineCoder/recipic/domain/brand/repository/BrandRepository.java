@@ -18,4 +18,5 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     @Query("SELECT b.brandName FROM Brand b WHERE b.brandId = :brandId")
     String findBrandNameByBrandId(@Param("brandId") Integer brandId);
+
 }

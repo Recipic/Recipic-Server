@@ -13,8 +13,8 @@ import java.util.List;
 @Builder
 public class RecipeRequestDto {
 
-    private String recipeId;
-    private Integer brandId;
+    private Integer recipeId;
+    private String brandName;
     private String title;
     private String thumbnailUrl;
     private List<SelectedRecipeDto> selectedRecipes;
@@ -26,7 +26,7 @@ public class RecipeRequestDto {
     @AllArgsConstructor
     @Builder
     public static class SelectedRecipeDto {
-        private Integer ingredientId;
+        private String ingredientName;
         private Integer count;
     }
 }

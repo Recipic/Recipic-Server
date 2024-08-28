@@ -53,9 +53,13 @@ public class RecipeService {
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
         Long userId = SecurityUtil.getCurrentMemberId();
 
+        // brandName으로 brandId 찾기
+        Integer brandId = brandRepository.findBrandIdByBrandName(recipeRequestDto.getBrandName())
+                .orElseThrow(() -> new RuntimeException("Brand not found: " + recipeRequestDto.getBrandName()));
+
         Recipe recipe = Recipe.builder()
                 .userId(userId)
-                .brandId(recipeRequestDto.getBrandId())
+                .brandId(brandId)  // brandName 대신 brandId 설정
                 .title(recipeRequestDto.getTitle())
                 .description(recipeRequestDto.getDescription())
                 .imageUrl(recipeRequestDto.getThumbnailUrl())
@@ -68,16 +72,20 @@ public class RecipeService {
 
         List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
                 .map(selectedRecipe -> {
+                    // ingredientName으로 ingredientId 찾기
+                    Integer ingredientId = ingredientRepository.findByName(selectedRecipe.getIngredientName())
+                            .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientName()));
+
                     RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
-                            selectedRecipe.getIngredientId(),
+                            ingredientId,
                             savedRecipe.getRecipeId()
                     );
 
                     return RecipeIngredient.builder()
                             .id(recipeIngredientId)
                             .recipe(savedRecipe)
-                            .ingredient(ingredientRepository.findById(selectedRecipe.getIngredientId())
-                                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientId())))
+                            .ingredient(ingredientRepository.findById(ingredientId)
+                                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + ingredientId)))
                             .count(selectedRecipe.getCount())
                             .build();
                 })
@@ -85,6 +93,7 @@ public class RecipeService {
 
         recipeIngredientRepository.saveAll(recipeIngredients);
     }
+
 
     public RecipeDetailResponseDto getRecipeDetail(Integer recipeId) {
         Recipe recipe = recipeRepository.findById(recipeId)
@@ -303,25 +312,58 @@ public class RecipeService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
-        // 수정할 게시글을 찾기
-        Recipe recipe = recipeRepository.findById(Integer.parseInt(recipeRequestDto.getRecipeId()))
+        // 수정할 레시피를 찾기
+        Recipe recipe = recipeRepository.findById(Integer.valueOf(recipeRequestDto.getRecipeId()))
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        // 게시글 작성자와 현재 사용자가 같은지 확인
+        // 레시피 작성자와 현재 사용자가 같은지 확인
         if (!recipe.getUserId().equals(userId)) {
             throw new IllegalArgumentException("You are not authorized to update this recipe");
         }
 
-        // 게시글 수정
+        // brandName으로 brandId 찾기
+        Integer brandId = brandRepository.findBrandIdByBrandName(recipeRequestDto.getBrandName())
+                .orElseThrow(() -> new RuntimeException("Brand not found: " + recipeRequestDto.getBrandName()));
+
+        // 레시피 수정
         recipe.updateRecipe(
                 recipeRequestDto.getTitle(),
                 recipeRequestDto.getDescription(),
                 recipeRequestDto.getThumbnailUrl(),
-                recipeRequestDto.getBrandId(),
+                brandId,  // brandId 설정
                 recipeRequestDto.getIsCelebrity()
         );
 
+        // 레시피 저장
         recipeRepository.save(recipe);
+
+        // 기존 재료 삭제 후 재추가
+        recipeIngredientRepository.deleteByRecipeId(recipe.getRecipeId());
+
+        List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
+                .map(selectedRecipe -> {
+                    // ingredientName으로 ingredientId 찾기
+                    Integer ingredientId = ingredientRepository.findByName(selectedRecipe.getIngredientName())
+                            .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientName()));
+
+                    RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
+                            ingredientId,
+                            recipe.getRecipeId()
+                    );
+
+                    return RecipeIngredient.builder()
+                            .id(recipeIngredientId)
+                            .recipe(recipe)
+                            .ingredient(ingredientRepository.findById(ingredientId)
+                                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + ingredientId)))
+                            .count(selectedRecipe.getCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        recipeIngredientRepository.saveAll(recipeIngredients);
+
         return true;
     }
+
 }
