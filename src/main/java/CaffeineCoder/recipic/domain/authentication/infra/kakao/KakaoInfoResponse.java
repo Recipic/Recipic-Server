@@ -23,6 +23,8 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class KakaoProfile {
+        @JsonProperty("profile_image_url") // JSON에서 프로필 이미지 URL을 매핑할 때 사용하는 속성 이름
+        private String profileImageURL;
         private String nickname;
     }
 
@@ -39,5 +41,10 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
     @Override
     public OAuthProvider getOAuthProvider() {
         return OAuthProvider.KAKAO;
+    }
+
+    @Override
+    public String getProfileImageUrl() {
+        return kakaoAccount.profile.profileImageURL;
     }
 }

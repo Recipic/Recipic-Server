@@ -27,9 +27,10 @@ public class User {
     private OAuthProvider oAuthProvider;
 
     @Builder
-    public User(String email, String nickName, OAuthProvider oAuthProvider) {
+    public User(String email, String nickName,String profileImageUrl, OAuthProvider oAuthProvider) {
         this.email = email;
         this.nickName = nickName;
+        this.profileImageUrl = profileImageUrl;
         this.oAuthProvider = oAuthProvider;
     }
 }
