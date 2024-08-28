@@ -19,13 +19,14 @@ public class RecipeDetailResponseDto {
     String isCelebrity;
     String createdAt;
     String status;
+    Boolean isScrapped;
     int scrapCount;
     List<IncludeIngredientDto> IncludeIngredients;
 
 
 
     @Builder
-    public RecipeDetailResponseDto(Integer recipeId, String userNickName, String userProfileImageUrl, String brandName, String title, String description, String thunbnailUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
+    public RecipeDetailResponseDto(Integer recipeId, String userNickName, String userProfileImageUrl, String brandName, String title, String description, String thunbnailUrl, String isCelebrity, String createdAt, String status,boolean isScrapped, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
         this.recipeId = recipeId;
         this.userNickName = userNickName;
         this.userProfileImageUrl = userProfileImageUrl;
@@ -36,6 +37,7 @@ public class RecipeDetailResponseDto {
         this.isCelebrity = isCelebrity;
         this.createdAt = createdAt;
         this.status = status;
+        this.isScrapped = isScrapped;
         this.scrapCount = scrapCount;
         this.IncludeIngredients = IncludeIngredients;
     }

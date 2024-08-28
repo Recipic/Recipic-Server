@@ -16,6 +16,7 @@ import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.*;
+import CaffeineCoder.recipic.domain.scrap.api.ScrapService;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
@@ -48,6 +49,7 @@ public class RecipeService {
     private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
     private final BrandService brandService;
+    private final ScrapService scrapService;
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
@@ -99,6 +101,8 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
+        boolean isScrapped = scrapService.isScrapped(SecurityUtil.getCurrentMemberId(), recipeId);
+
         // Fetch scrap count
         int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
@@ -128,6 +132,7 @@ public class RecipeService {
 
         String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
 
+
         return RecipeDetailResponseDto.builder()
                 .recipeId(recipe.getRecipeId())
                 .userNickName(user.getNickName())
@@ -139,6 +144,7 @@ public class RecipeService {
                 .isCelebrity(recipe.getIsCelebrity().toString())
                 .createdAt(recipe.getCreatedAt().toString())
                 .status(recipe.getStatus().toString())
+                .isScrapped(isScrapped)
                 .scrapCount(scrapCount)
                 .IncludeIngredients(includeIngredients)
                 .build();
