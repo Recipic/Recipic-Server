@@ -1,6 +1,7 @@
 package CaffeineCoder.recipic.domain.recipe.dto;
 
 import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,12 +9,13 @@ import java.util.List;
 
 @Getter
 public class RecipeDetailResponseDto {
-    String recipeId;
-    String userId;
-    String brandId;
+    Integer recipeId;
+    String userNickName;
+    String userProfileImageUrl;
+    String brandName;
     String title;
     String description;
-    String imageUrl;
+    String thunbnailUrl;
     String isCelebrity;
     String createdAt;
     String status;
@@ -23,13 +25,14 @@ public class RecipeDetailResponseDto {
 
 
     @Builder
-    public RecipeDetailResponseDto(String recipeId, String userId, String brandId, String title, String description, String imageUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
+    public RecipeDetailResponseDto(Integer recipeId, String userNickName, String userProfileImageUrl, String brandName, String title, String description, String thunbnailUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
         this.recipeId = recipeId;
-        this.userId = userId;
-        this.brandId = brandId;
+        this.userNickName = userNickName;
+        this.userProfileImageUrl = userProfileImageUrl;
+        this.brandName = brandName;
         this.title = title;
         this.description = description;
-        this.imageUrl = imageUrl;
+        this.thunbnailUrl = thunbnailUrl;
         this.isCelebrity = isCelebrity;
         this.createdAt = createdAt;
         this.status = status;
