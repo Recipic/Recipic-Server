@@ -9,6 +9,8 @@ import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
+import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
+
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.*;
@@ -86,10 +88,21 @@ public class RecipeService {
         List<RecipeIngredient> ingredients = recipeIngredientRepository.findByRecipeId(recipeId);
 
         List<IncludeIngredientDto> IncludeIngredients = ingredients.stream()
-                .map(ingredient -> IncludeIngredientDto.builder()
-                        .ingredientId(ingredient.getIngredient().getIngredientId())
-                        .count(ingredient.getCount())
-                        .build())
+                .map(ingredient -> {
+                    // Get the ingredientId
+                    Integer ingredientId = ingredient.getIngredient().getIngredientId();
+
+                    // Find ingredientName using ingredientId from the repository
+                    String ingredientName = ingredientRepository.findById(ingredientId)
+                            .map(Ingredient::getIngredientName) // Assuming your Ingredient entity has a method getIngredientName()
+                            .orElse("Unknown Ingredient"); // Handle case where ingredient is not found
+
+                    // Build the IncludeIngredientDto with ingredientName and count
+                    return IncludeIngredientDto.builder()
+                            .ingredientName(ingredientName)
+                            .count(ingredient.getCount())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         List<Comment> comments = commentRepository.findByRecipeId(recipeId);
@@ -114,7 +127,6 @@ public class RecipeService {
                 .status(recipe.getStatus().toString())
                 .scrapCount(scrapCount)
                 .IncludeIngredients(IncludeIngredients)
-                .comments(commentDtos)
                 .build();
     }
 

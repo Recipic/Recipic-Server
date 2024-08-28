@@ -19,12 +19,11 @@ public class RecipeDetailResponseDto {
     String status;
     int scrapCount;
     List<IncludeIngredientDto> IncludeIngredients;
-    List<CommentDto> comments;
 
 
 
     @Builder
-    public RecipeDetailResponseDto(String recipeId, String userId, String brandId, String title, String description, String imageUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients, List<CommentDto> comments) {
+    public RecipeDetailResponseDto(String recipeId, String userId, String brandId, String title, String description, String imageUrl, String isCelebrity, String createdAt, String status, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
         this.recipeId = recipeId;
         this.userId = userId;
         this.brandId = brandId;
@@ -36,6 +35,5 @@ public class RecipeDetailResponseDto {
         this.status = status;
         this.scrapCount = scrapCount;
         this.IncludeIngredients = IncludeIngredients;
-        this.comments = comments;
     }
 }
