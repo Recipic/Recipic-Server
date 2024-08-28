@@ -9,10 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponseDto {
+    private Long userId;
+    private String nickName;
+    private String profileImageUrl;
     private String email;
 
     public static UserResponseDto of(User user) {
-        return new UserResponseDto(user.getEmail());
+        return new UserResponseDto(user.getUserId(), user.getNickName(), user.getProfileImageUrl(), user.getEmail());
     }
 }
 

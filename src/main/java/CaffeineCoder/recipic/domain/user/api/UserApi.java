@@ -6,6 +6,8 @@ import CaffeineCoder.recipic.domain.authentication.domain.AuthTokensGenerator;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
+import CaffeineCoder.recipic.global.response.ApiResponse;
+import CaffeineCoder.recipic.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +28,7 @@ public class UserApi {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserResponseDto> findMemberInfoById() {
-        return ResponseEntity.ok(userService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
+    public ApiResponse<UserResponseDto> findMemberInfoById() {
+        return ApiUtils.success(userService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
     }
 }
