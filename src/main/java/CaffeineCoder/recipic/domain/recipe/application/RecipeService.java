@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.recipe.application;
 
+import CaffeineCoder.recipic.domain.brand.api.BrandService;
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
@@ -15,6 +16,8 @@ import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredient;
 import CaffeineCoder.recipic.domain.recipe.domain.RecipeIngredientId;
 import CaffeineCoder.recipic.domain.recipe.dto.*;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +45,8 @@ public class RecipeService {
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserRepository userRepository;
+    private final BrandService brandService;
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
@@ -87,20 +92,19 @@ public class RecipeService {
 
         List<RecipeIngredient> ingredients = recipeIngredientRepository.findByRecipeId(recipeId);
 
-        List<IncludeIngredientDto> IncludeIngredients = ingredients.stream()
+        List<IncludeIngredientDto> includeIngredients = ingredients.stream()
                 .map(ingredient -> {
                     // Get the ingredientId
                     Integer ingredientId = ingredient.getIngredient().getIngredientId();
 
-                    // Find ingredientName using ingredientId from the repository
-                    String ingredientName = ingredientRepository.findById(ingredientId)
-                            .map(Ingredient::getIngredientName) // Assuming your Ingredient entity has a method getIngredientName()
-                            .orElse("Unknown Ingredient"); // Handle case where ingredient is not found
+                    // Find Ingredient using ingredientId from the repository
+                    Ingredient foundIngredient = ingredientRepository.findById(ingredientId)
+                            .orElse(null);  // 해당 재료가 없을 경우 null 처리
 
-                    // Build the IncludeIngredientDto with ingredientName and count
+                    // Build IncludeIngredientDto with Ingredient object and count
                     return IncludeIngredientDto.builder()
-                            .ingredientName(ingredientName)
-                            .count(ingredient.getCount())
+                            .ingredient(foundIngredient)  // Ingredient 객체 자체를 포함
+                            .count(ingredient.getCount())  // 해당 재료의 수량 포함
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -115,18 +119,24 @@ public class RecipeService {
                 })
                 .collect(Collectors.toList());
 
+        Optional<User> OptionalUser = userRepository.findById(recipe.getUserId());
+        User user = OptionalUser.orElseThrow(() -> new RuntimeException("User not found"));
+
+        String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
+
         return RecipeDetailResponseDto.builder()
-                .recipeId(recipe.getRecipeId().toString())
-                .userId(recipe.getUserId().toString())
-                .brandId(recipe.getBrandId().toString())
+                .recipeId(recipe.getRecipeId())
+                .userNickName(user.getNickName())
+                .userProfileImageUrl("https://example.com/profile-image.jpg") // Set the profile image URL here
+                .brandName(brandName)
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
-                .imageUrl(recipe.getImageUrl())
+                .thunbnailUrl(recipe.getImageUrl())
                 .isCelebrity(recipe.getIsCelebrity().toString())
                 .createdAt(recipe.getCreatedAt().toString())
                 .status(recipe.getStatus().toString())
                 .scrapCount(scrapCount)
-                .IncludeIngredients(IncludeIngredients)
+                .IncludeIngredients(includeIngredients)
                 .build();
     }
 

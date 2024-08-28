@@ -7,6 +7,7 @@ import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
 import CaffeineCoder.recipic.domain.brand.repository.BrandIngredientRepository;
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,5 +79,9 @@ public class BrandService {
         brandIngredientRepository.save(brandIngredient);
 
         return true;
+    }
+
+    public String getBrandNameByBrandId(Integer brandId) {
+        return brandRepository.findBrandNameByBrandId(brandId);
     }
 }
