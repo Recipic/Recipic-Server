@@ -6,6 +6,7 @@ import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.comment.domain.Comment;
 import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
+import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -45,8 +46,11 @@ public class RecipeService {
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
+        // 현재 인증된 사용자의 ID를 가져옵니다.
+        Long userId = SecurityUtil.getCurrentMemberId(); // SecurityContextHolder에서 직접 가져올 수도 있습니다.
+
         Recipe recipe = Recipe.builder()
-                .userId(Long.valueOf(recipeRequestDto.getUserId()))
+                .userId(userId)
                 .brandId(recipeRequestDto.getBrandId())
                 .title(recipeRequestDto.getTitle())
                 .description(recipeRequestDto.getDescription())

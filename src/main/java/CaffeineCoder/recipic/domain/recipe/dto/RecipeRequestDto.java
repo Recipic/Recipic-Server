@@ -14,7 +14,6 @@ import java.util.List;
 public class RecipeRequestDto {
 
     private String recipeId;
-    private String userId;
     private Integer brandId;
     private String title;
     private String thumbnailUrl;
