@@ -10,9 +10,10 @@ public record CommentDto(
         Long userId,
         String userProfileImageUrl,
         String userNickName,
+        boolean isLiked,
         int likeCount
 ) {
-    public static CommentDto fromEntity(Comment comment, User user, int likeCount) {
+    public static CommentDto fromEntity(Comment comment, User user,boolean isLiked, int likeCount) {
         return new CommentDto(
                 comment.getCommentId().toString(),
                 comment.getContent(),
@@ -20,6 +21,7 @@ public record CommentDto(
                 user.getUserId(),
                 user.getProfileImageUrl(),
                 user.getNickName(),
+                isLiked,
                 likeCount
         );
     }
