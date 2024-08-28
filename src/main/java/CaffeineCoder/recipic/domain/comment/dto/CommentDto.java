@@ -15,7 +15,7 @@ public record CommentDto(
         int likeCount,
         boolean isLiked
 ) {
-    public static CommentDto fromEntity(Comment comment, User user, int likeCount, boolean isLiked) {
+    public static CommentDto fromEntity(Comment comment, User user, boolean isLiked, int likeCount) {
         return new CommentDto(
                 comment.getCommentId(),
                 comment.getContent(),
@@ -23,7 +23,7 @@ public record CommentDto(
                 user.getUserId(),
                 user.getProfileImageUrl(),
                 user.getNickName(),
-                comment.getRecipe().getTitle(), //레시피 제목
+                comment.getRecipe().getTitle(), 
                 comment.getRecipeId(),
                 likeCount,
                 isLiked

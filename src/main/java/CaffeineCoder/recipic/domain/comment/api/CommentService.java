@@ -7,6 +7,7 @@ import CaffeineCoder.recipic.domain.comment.domain.CommentLike;
 import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentResponseDto;
+import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
@@ -164,7 +165,10 @@ public class CommentService {
                     int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
                     boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(currentUserId, comment.getCommentId()).isPresent();
 
-                    return CommentDto.fromEntity(comment, user, likeCount, isLiked);
+                    boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(SecurityUtil.getCurrentMemberId(),comment.getCommentId()).isPresent();
+
+                    return CommentDto.fromEntity(comment, user, isLiked, likeCount);
+                  
                 })
                 .collect(Collectors.toList());
     }
