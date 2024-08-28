@@ -39,9 +39,9 @@ public class AuthTokensGenerator {
         return tokenDto;
     }
 
-    public TokenDto generateAdmin() {
+    public TokenDto generateAdmin(Long memberId) {
 
-        String subject = "admin";
+        String subject = memberId.toString();
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 

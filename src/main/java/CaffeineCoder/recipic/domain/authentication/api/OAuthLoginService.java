@@ -4,6 +4,8 @@ import CaffeineCoder.recipic.domain.authentication.domain.AuthTokensGenerator;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthInfoResponse;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthLoginParams;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.RequestOAuthInfoService;
+import CaffeineCoder.recipic.domain.authentication.infra.kakao.KakaoInfoResponse;
+import CaffeineCoder.recipic.domain.authentication.infra.kakao.admin.AdminInfoResponse;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
@@ -42,6 +44,22 @@ public class OAuthLoginService {
     }
 
     public TokenDto issueAdmin() {
-        return authTokensGenerator.generateAdmin();
+        AdminInfoResponse.AdminProfile profile = AdminInfoResponse.AdminProfile.builder()
+                .profileImageURL("https://ogq-sticker-global-cdn-z01.afreecatv.com/sticker/60f884df5b12c/1.png")
+                .nickname("관리자")
+                .build();
+
+        AdminInfoResponse.AdminAccount adminAccount = AdminInfoResponse.AdminAccount.builder()
+                .profile(profile)
+                .email("test@example.com")
+                .build();
+
+        AdminInfoResponse adminInfoResponse = AdminInfoResponse.builder()
+                .adminAccount(adminAccount)
+                .build();
+
+
+
+        return authTokensGenerator.generateAdmin(findOrCreateMember(adminInfoResponse));
     }
 }
