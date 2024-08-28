@@ -1,4 +1,4 @@
-package CaffeineCoder.recipic.domain.authentication.infra.kakao;
+package CaffeineCoder.recipic.domain.authentication.infra.kakao.admin;
 
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthInfoResponse;
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthProvider;
@@ -8,35 +8,38 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoInfoResponse implements OAuthInfoResponse {
+public class AdminInfoResponse implements OAuthInfoResponse {
 
-    @JsonProperty("kakao_account")
-    private KakaoAccount kakaoAccount;
+    @JsonProperty("Admin_account")
+    public AdminAccount adminAccount;
 
     @Getter
+    @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class KakaoAccount {
-        private KakaoProfile profile;
-        private String email;
+    public static class AdminAccount {
+        public AdminProfile profile;
+        public String email;
     }
 
     @Getter
+    @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class KakaoProfile {
+    public static class AdminProfile {
         @JsonProperty("profile_image_url") // JSON에서 프로필 이미지 URL을 매핑할 때 사용하는 속성 이름
-        private String profileImageURL;
-        private String nickname;
+        public String profileImageURL;
+        public String nickname;
     }
 
     @Override
     public String getEmail() {
-        return kakaoAccount.email;
+        return adminAccount.email;
     }
 
     @Override
     public String getNickname() {
-        return kakaoAccount.profile.nickname;
+        return adminAccount.profile.nickname;
     }
 
     @Override
@@ -46,6 +49,6 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
 
     @Override
     public String getProfileImageUrl() {
-        return kakaoAccount.profile.profileImageURL;
+        return adminAccount.profile.profileImageURL;
     }
 }
