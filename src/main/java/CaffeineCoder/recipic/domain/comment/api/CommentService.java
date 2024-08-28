@@ -149,12 +149,12 @@ public class CommentService {
         Page<Comment> commentsPage;
 
         if ("likes".equalsIgnoreCase(sortType)) {
-            // 좋아요 순으로 정렬
             commentsPage = commentRepository.findByRecipeIdOrderByLikes(recipeId, pageable);
         } else {
-            // 기본적으로 최신 순으로 정렬
             commentsPage = commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
         }
+
+        Long currentUserId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
 
         return commentsPage.getContent().stream()
                 .map(comment -> {
@@ -162,8 +162,9 @@ public class CommentService {
                             .orElseThrow(() -> new RuntimeException("User with id " + comment.getUserId() + " not found"));
 
                     int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+                    boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(currentUserId, comment.getCommentId()).isPresent();
 
-                    return CommentDto.fromEntity(comment, user, likeCount);
+                    return CommentDto.fromEntity(comment, user, likeCount, isLiked);
                 })
                 .collect(Collectors.toList());
     }

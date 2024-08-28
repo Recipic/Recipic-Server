@@ -4,23 +4,29 @@ import CaffeineCoder.recipic.domain.comment.domain.Comment;
 import CaffeineCoder.recipic.domain.user.domain.User;
 
 public record CommentDto(
-        String commentId,
+        Integer commentId,
         String content,
         String createdAt,
         Long userId,
         String userProfileImageUrl,
         String userNickName,
-        int likeCount
+        String recipeTitle,
+        Integer recipeId,
+        int likeCount,
+        boolean isLiked
 ) {
-    public static CommentDto fromEntity(Comment comment, User user, int likeCount) {
+    public static CommentDto fromEntity(Comment comment, User user, int likeCount, boolean isLiked) {
         return new CommentDto(
-                comment.getCommentId().toString(),
+                comment.getCommentId(),
                 comment.getContent(),
                 comment.getCreatedAt().toString(),
                 user.getUserId(),
                 user.getProfileImageUrl(),
                 user.getNickName(),
-                likeCount
+                comment.getRecipe().getTitle(), //레시피 제목
+                comment.getRecipeId(),
+                likeCount,
+                isLiked
         );
     }
 }
