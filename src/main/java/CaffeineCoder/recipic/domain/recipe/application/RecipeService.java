@@ -131,7 +131,7 @@ public class RecipeService {
         return RecipeDetailResponseDto.builder()
                 .recipeId(recipe.getRecipeId())
                 .userNickName(user.getNickName())
-                .userProfileImageUrl("https://example.com/profile-image.jpg") // Set the profile image URL here
+                .userProfileImageUrl(user.getProfileImageUrl()) // Set the profile image URL here
                 .brandName(brandName)
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
