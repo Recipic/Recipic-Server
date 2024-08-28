@@ -20,6 +20,9 @@ public class User {
 
     private String nickName;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @Column(name = "o_auth_provider")
     private OAuthProvider oAuthProvider;
 
