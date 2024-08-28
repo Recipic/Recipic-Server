@@ -14,14 +14,12 @@ public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "brand_id")
-
     private Integer brandId;
 
-
-    @Column(name = "brand_name")
+    @Column(name = "brand_name", nullable = false)
     private String brandName;
 
-    @OneToMany(mappedBy = "brand")
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BrandIngredient> brandIngredients;
 
     public Integer getBrandId() {

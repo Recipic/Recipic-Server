@@ -7,6 +7,7 @@ import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.comment.domain.Comment;
 import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
+import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -50,8 +51,10 @@ public class RecipeService {
 
 
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
+        Long userId = SecurityUtil.getCurrentMemberId();
+
         Recipe recipe = Recipe.builder()
-                .userId(Long.valueOf(recipeRequestDto.getUserId()))
+                .userId(userId)
                 .brandId(recipeRequestDto.getBrandId())
                 .title(recipeRequestDto.getTitle())
                 .description(recipeRequestDto.getDescription())

@@ -10,6 +10,7 @@ import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,6 +82,18 @@ public class BrandService {
         return true;
     }
 
+    //모든 브랜드 가져오기
+    public List<Map<String, Object>> getAllBrands() {
+        return brandRepository.findAll().stream()
+                .map(brand -> {
+                    Map<String, Object> brandMap = new LinkedHashMap<>();
+                    brandMap.put("brandId", brand.getBrandId());
+                    brandMap.put("brandName", brand.getBrandName());
+                    return brandMap;
+                })
+                .collect(Collectors.toList());
+      
+      
     public String getBrandNameByBrandId(Integer brandId) {
         return brandRepository.findBrandNameByBrandId(brandId);
     }
