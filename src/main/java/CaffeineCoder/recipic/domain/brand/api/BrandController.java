@@ -62,4 +62,16 @@ public class BrandController {
 
         return ResponseEntity.ok(response);
     }
+
+    //모든 브랜드 가져오기
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> getAllBrands() {
+        List<Map<String, Object>> brands = brandService.getAllBrands();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("isSuccess", true);
+        response.put("response", brands);
+
+        return ResponseEntity.ok(response);
+    }
 }
