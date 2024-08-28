@@ -1,10 +1,14 @@
 package CaffeineCoder.recipic.domain.recipe.application;
 
+import CaffeineCoder.recipic.domain.brand.api.BrandService;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
+import CaffeineCoder.recipic.domain.user.application.UserService;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,8 @@ public class RecipeRankService {
     private final RecipeRepository recipeRepository;
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
+    private final UserService userService;
+    private final BrandService brandService;
 
     public List<?> getNormalRank() {
         return recipeRepository.findAll();
@@ -33,7 +39,12 @@ public class RecipeRankService {
             Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
             int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
             int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount));
+
+            User user = userService.findUser(recipe.getUserId());
+
+            String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
+
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe,user,brandName, scrapCount,commentCount));
         }
 
 
@@ -50,7 +61,11 @@ public class RecipeRankService {
             Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
             int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
             int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe, scrapCount,commentCount));
+            User user = userService.findUser(recipe.getUserId());
+
+            String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
+
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe,user,brandName, scrapCount,commentCount));
         }
 
         return topRecipes;
