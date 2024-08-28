@@ -4,11 +4,13 @@ import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.comment.domain.Comment;
 import CaffeineCoder.recipic.domain.comment.domain.CommentLike;
+import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentResponseDto;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -140,6 +142,30 @@ public class CommentService {
                 pageable,
                 comments.getTotalElements()
         );
+    }
+
+    public List<CommentDto> getComments(Integer recipeId, int page, int size) {
+        // 레시피가 존재하는지 확인
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RuntimeException("Recipe with id " + recipeId + " not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Comment> commentsPage = commentRepository.findByRecipeId(recipeId, pageable);
+
+        List<CommentDto> commentDtos = commentsPage.getContent().stream()
+                .map(comment -> {
+                    User user = userRepository.findById(comment.getUserId())
+                            .orElseThrow(() -> new RuntimeException("User with id " + comment.getUserId() + " not found"));
+
+                    int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+
+                    return CommentDto.fromEntity(comment, user, likeCount);
+                })
+                .collect(Collectors.toList());
+
+        return commentDtos;
+
     }
 
 

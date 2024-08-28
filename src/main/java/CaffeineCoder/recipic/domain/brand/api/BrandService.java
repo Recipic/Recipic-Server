@@ -92,7 +92,7 @@ public class BrandService {
                     return brandMap;
                 })
                 .collect(Collectors.toList());
-      
+    }
       
     public String getBrandNameByBrandId(Integer brandId) {
         return brandRepository.findBrandNameByBrandId(brandId);

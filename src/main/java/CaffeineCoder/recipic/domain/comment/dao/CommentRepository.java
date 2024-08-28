@@ -1,6 +1,7 @@
 package CaffeineCoder.recipic.domain.comment.dao;
 
 import CaffeineCoder.recipic.domain.comment.domain.Comment;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +19,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     void deleteByRecipeId(Integer recipeId);
 
-    List<Comment> findByRecipeId(Integer recipeId);
+    Page<Comment> findByRecipeId(Integer recipeId, Pageable pageable);
+
 
 
     // 특정 사용자가 작성한 댓글을 페이지네이션하여 가져오기
