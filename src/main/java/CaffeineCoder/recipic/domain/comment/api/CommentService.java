@@ -144,16 +144,19 @@ public class CommentService {
         );
     }
 
-    public List<CommentDto> getComments(Integer recipeId, int page, int size) {
-        // 레시피가 존재하는지 확인
-        Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new RuntimeException("Recipe with id " + recipeId + " not found"));
-
+    public List<CommentDto> getComments(Integer recipeId, int page, int size, String sortType) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> commentsPage;
 
-        Page<Comment> commentsPage = commentRepository.findByRecipeId(recipeId, pageable);
+        if ("likes".equalsIgnoreCase(sortType)) {
+            // 좋아요 순으로 정렬
+            commentsPage = commentRepository.findByRecipeIdOrderByLikes(recipeId, pageable);
+        } else {
+            // 기본적으로 최신 순으로 정렬
+            commentsPage = commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
+        }
 
-        List<CommentDto> commentDtos = commentsPage.getContent().stream()
+        return commentsPage.getContent().stream()
                 .map(comment -> {
                     User user = userRepository.findById(comment.getUserId())
                             .orElseThrow(() -> new RuntimeException("User with id " + comment.getUserId() + " not found"));
@@ -163,10 +166,5 @@ public class CommentService {
                     return CommentDto.fromEntity(comment, user, likeCount);
                 })
                 .collect(Collectors.toList());
-
-        return commentDtos;
-
     }
-
-
 }

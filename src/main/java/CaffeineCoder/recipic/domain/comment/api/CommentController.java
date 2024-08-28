@@ -54,8 +54,9 @@ public class CommentController {
     public ApiResponse<?> getComments(
             @RequestParam(value = "recipeId", defaultValue = "-1") int recipeId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size){
-        return ApiUtils.success(commentService.getComments(recipeId, page, size));
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortType", defaultValue = "latest") String sortType) {
+        return ApiUtils.success(commentService.getComments(recipeId, page, size, sortType));
     }
 
 }
