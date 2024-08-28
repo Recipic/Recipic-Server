@@ -18,15 +18,15 @@ public class User {
 
     private String email;
 
-    private String nickname;
+    private String nickName;
 
     @Column(name = "o_auth_provider")
     private OAuthProvider oAuthProvider;
 
     @Builder
-    public User(String email, String nickname, OAuthProvider oAuthProvider) {
+    public User(String email, String nickName, OAuthProvider oAuthProvider) {
         this.email = email;
-        this.nickname = nickname;
+        this.nickName = nickName;
         this.oAuthProvider = oAuthProvider;
     }
 }
