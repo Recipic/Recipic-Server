@@ -1,6 +1,9 @@
 package CaffeineCoder.recipic.domain.comment.api;
 
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
+import CaffeineCoder.recipic.global.response.ApiResponse;
+import CaffeineCoder.recipic.global.util.ApiUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +48,14 @@ public class CommentController {
         Map<String, Object> response = new HashMap<>();
         response.put("isSuccess", isSuccess);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/list")
+    public ApiResponse<?> getComments(
+            @RequestParam(value = "recipeId", defaultValue = "-1") int recipeId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size){
+        return ApiUtils.success(commentService.getComments(recipeId, page, size));
     }
 
 }

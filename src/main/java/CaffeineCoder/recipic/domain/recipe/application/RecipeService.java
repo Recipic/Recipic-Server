@@ -112,15 +112,7 @@ public class RecipeService {
                 })
                 .collect(Collectors.toList());
 
-        List<Comment> comments = commentRepository.findByRecipeId(recipeId);
 
-        // Map Comment entities to CommentDto with like count
-        List<CommentDto> commentDtos = comments.stream()
-                .map(comment -> {
-                    int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
-                    return CommentDto.fromEntity(comment, likeCount);  // 좋아요 수와 함께 매핑
-                })
-                .collect(Collectors.toList());
 
         Optional<User> OptionalUser = userRepository.findById(recipe.getUserId());
         User user = OptionalUser.orElseThrow(() -> new RuntimeException("User not found"));
