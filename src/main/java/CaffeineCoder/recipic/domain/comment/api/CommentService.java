@@ -131,12 +131,11 @@ public class CommentService {
         return new PageImpl<>(
                 comments.stream()
                         .map(comment -> {
-                            // 각 댓글에 대한 likeCount를 계산
                             int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
                             return new CommentResponseDto(
                                     comment,
-                                    comment.getRecipe().getTitle(), // Assuming there's a getTitle() in Recipe
-                                    likeCount // 계산된 likeCount 전달
+                                    comment.getRecipe().getTitle(),
+                                    likeCount
                             );
                         })
                         .collect(Collectors.toList()),
@@ -144,6 +143,7 @@ public class CommentService {
                 comments.getTotalElements()
         );
     }
+
 
     public List<CommentDto> getComments(Integer recipeId, int page, int size, String sortType) {
         Pageable pageable = PageRequest.of(page, size);
