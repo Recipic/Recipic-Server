@@ -157,6 +157,8 @@ public class CommentService {
             commentsPage = commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
         }
 
+        Long currentUserId = SecurityUtil.getCurrentMemberId();  // 현재 사용자 ID 가져오기
+
         return commentsPage.getContent().stream()
                 .map(comment -> {
                     User user = userRepository.findById(comment.getUserId())
@@ -164,9 +166,11 @@ public class CommentService {
 
                     int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
 
-                    boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(SecurityUtil.getCurrentMemberId(),comment.getCommentId()).isPresent();
+                    boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(currentUserId, comment.getCommentId()).isPresent();
 
-                    return CommentDto.fromEntity(comment, user, isLiked, likeCount);
+                    boolean isMyComment = comment.getUserId().equals(currentUserId);  // 본인이 작성한 댓글 여부 확인
+
+                    return CommentDto.fromEntity(comment, user, isLiked, likeCount, isMyComment);
                 })
                 .collect(Collectors.toList());
     }
