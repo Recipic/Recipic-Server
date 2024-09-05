@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -103,7 +104,19 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
-        boolean isScrapped = scrapService.isScrapped(SecurityUtil.getCurrentMemberId(), recipeId);
+        boolean isScrapped = false;
+
+        // 현재 인증된 사용자가 있는지 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+
+            Long currentMemberId = SecurityUtil.getCurrentMemberId();
+
+            if (currentMemberId != null) {
+                isScrapped = scrapService.isScrapped(currentMemberId, recipeId);
+            }
+        }
 
         // Fetch scrap count
         int scrapCount = scrapRepository.countByRecipeId(recipeId);

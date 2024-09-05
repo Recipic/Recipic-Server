@@ -25,9 +25,6 @@ public class RecipeRankService {
     private final UserService userService;
     private final BrandService brandService;
 
-    public List<?> getNormalRank() {
-        return recipeRepository.findAll();
-    }
 
     public List<RecipeResponseDto> getTop5NormalRecipes() {
 
