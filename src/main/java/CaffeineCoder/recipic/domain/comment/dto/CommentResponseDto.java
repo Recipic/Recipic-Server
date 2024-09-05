@@ -11,6 +11,7 @@ public class CommentResponseDto {
     private final String recipeTitle;
     private final String content;
     private final int likeCount;
+    private final String createdAt;
 
     public CommentResponseDto(Comment comment, String recipeTitle, int likeCount) {
         this.commentId = comment.getCommentId();
@@ -18,5 +19,6 @@ public class CommentResponseDto {
         this.recipeTitle = recipeTitle;
         this.content = comment.getContent();
         this.likeCount = likeCount;
+        this.createdAt = comment.getCreatedAt().toString();
     }
 }
