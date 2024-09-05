@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/comments")
@@ -20,12 +22,10 @@ public class UserCommentApi {
     private final CommentService commentService;
 
     @GetMapping("")
-    public ApiResponse<Page<CommentResponseDto>> getUserComments(
-            @RequestParam(value = "keyword", defaultValue = "") String keyword,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+    public ApiResponse<List<CommentResponseDto>> getUserComments(
+            @RequestParam(value = "sortType", defaultValue = "latest") String sortType) {
         Long userId = SecurityUtil.getCurrentMemberId();
-        Page<CommentResponseDto> userComments = commentService.getUserComments(keyword, page, size, userId);
+        List<CommentResponseDto> userComments = commentService.getUserComments(userId, sortType);
         return ApiUtils.success(userComments);
     }
 }

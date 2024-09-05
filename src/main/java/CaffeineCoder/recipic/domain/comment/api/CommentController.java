@@ -1,10 +1,12 @@
 package CaffeineCoder.recipic.domain.comment.api;
 
+import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
 import CaffeineCoder.recipic.global.response.ApiResponse;
 import CaffeineCoder.recipic.global.util.ApiUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,12 +53,13 @@ public class CommentController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<?> getComments(
-            @RequestParam(value = "recipeId", defaultValue = "-1") int recipeId,
+    public ApiResponse<Page<CommentDto>> getComments(
+            @RequestParam("recipeId") Integer recipeId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortType", defaultValue = "latest") String sortType) {
-        return ApiUtils.success(commentService.getComments(recipeId, page, size, sortType));
+        Page<CommentDto> comments = commentService.getComments(recipeId, page, size, sortType);
+        return ApiUtils.success(comments);
     }
 
 }

@@ -116,62 +116,56 @@ public class CommentService {
         return true;
     }
 
-    // 내가 작성한 댓글 목록 메소드 (페이징 및 키워드 검색 기능 추가)
+    // 내가 작성한 댓글 목록
     @Transactional(readOnly = true)
-    public Page<CommentResponseDto> getUserComments(String keyword, int page, int size, Long userId) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Comment> comments;
+    public List<CommentResponseDto> getUserComments(Long userId, String sortType) {
+        List<Comment> comments;
 
-        if (keyword.isEmpty()) {
-            comments = commentRepository.findByUserId(userId, pageable);
+        // 정렬 기준에 따라 댓글을 가져옴
+        if ("likes".equalsIgnoreCase(sortType)) {
+            comments = commentRepository.findByUserIdOrderByLikes(userId);
         } else {
-            comments = commentRepository.findByUserIdAndContentContaining(userId, keyword, pageable);
+            comments = commentRepository.findByUserIdOrderByCreatedAtDesc(userId);  // 기본적으로 최신순
         }
 
-        return new PageImpl<>(
-                comments.stream()
-                        .map(comment -> {
-                            int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
-                            return new CommentResponseDto(
-                                    comment,
-                                    comment.getRecipe().getTitle(),
-                                    likeCount
-                            );
-                        })
-                        .collect(Collectors.toList()),
-                pageable,
-                comments.getTotalElements()
-        );
+        // 댓글을 DTO로 변환하여 리스트로 반환
+        return comments.stream()
+                .map(comment -> {
+                    int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+                    return new CommentResponseDto(
+                            comment,
+                            comment.getRecipe().getTitle(),
+                            likeCount
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
-
-    public List<CommentDto> getComments(Integer recipeId, int page, int size, String sortType) {
+    // 레시피 상세 페이지 댓글 조회
+    public Page<CommentDto> getComments(Integer recipeId, int page, int size, String sortType) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Comment> commentsPage;
 
+        // 정렬 기준에 따라 댓글을 가져옴
         if ("likes".equalsIgnoreCase(sortType)) {
-            // 좋아요 순으로 정렬
             commentsPage = commentRepository.findByRecipeIdOrderByLikes(recipeId, pageable);
         } else {
-            // 기본적으로 최신 순으로 정렬
-            commentsPage = commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);
+            commentsPage = commentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId, pageable);  // 기본적으로 최신순
         }
 
         Long currentUserId = SecurityUtil.getCurrentMemberId();  // 현재 사용자 ID 가져오기
 
-        return commentsPage.getContent().stream()
-                .map(comment -> {
-                    User user = userRepository.findById(comment.getUserId())
-                            .orElseThrow(() -> new RuntimeException("User with id " + comment.getUserId() + " not found"));
+        return commentsPage.map(comment -> {
+            User user = userRepository.findById(comment.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User with id " + comment.getUserId() + " not found"));
 
-                    int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
+            int likeCount = commentLikeRepository.countByCommentId(comment.getCommentId());
 
-                    boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(currentUserId, comment.getCommentId()).isPresent();
+            boolean isLiked = commentLikeRepository.findByUserIdAndCommentId(currentUserId, comment.getCommentId()).isPresent();
 
-                    boolean isMyComment = comment.getUserId().equals(currentUserId);  // 본인이 작성한 댓글 여부 확인
+            boolean isMyComment = comment.getUserId().equals(currentUserId);  // 본인이 작성한 댓글 여부 확인
 
-                    return CommentDto.fromEntity(comment, user, isLiked, likeCount, isMyComment);
-                })
-                .collect(Collectors.toList());
+            return CommentDto.fromEntity(comment, user, isLiked, likeCount, isMyComment);
+        });
     }
 }
