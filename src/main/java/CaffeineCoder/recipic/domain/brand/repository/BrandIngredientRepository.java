@@ -12,4 +12,3 @@ import java.util.List;
 public interface BrandIngredientRepository extends JpaRepository<BrandIngredient, BrandIngredientId> {
     List<BrandIngredient> findByBrand(Brand brand);
 }
-

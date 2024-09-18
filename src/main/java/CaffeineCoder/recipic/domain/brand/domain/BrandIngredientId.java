@@ -16,12 +16,12 @@ public class BrandIngredientId implements Serializable {
     @Column(name = "brand_id")
     private Integer brandId;
 
-    @Column(name = "ingredient_id")
-    private Integer ingredientId;
+    @Column(name = "baseingredient_id")
+    private Integer baseIngredientId;
 
-    public BrandIngredientId(Integer brandId, Integer ingredientId) {
+    public BrandIngredientId(Integer brandId, Integer baseIngredientId) {
         this.brandId = brandId;
-        this.ingredientId = ingredientId;
+        this.baseIngredientId = baseIngredientId;
     }
 
     @Override
@@ -30,11 +30,11 @@ public class BrandIngredientId implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         BrandIngredientId that = (BrandIngredientId) o;
         return Objects.equals(brandId, that.brandId) &&
-                Objects.equals(ingredientId, that.ingredientId);
+                Objects.equals(baseIngredientId, that.baseIngredientId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(brandId, ingredientId);
+        return Objects.hash(brandId, baseIngredientId);
     }
 }

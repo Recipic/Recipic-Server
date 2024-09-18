@@ -22,7 +22,8 @@ public class Brand {
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BrandIngredient> brandIngredients;
 
-    public Integer getBrandId() {
-        return brandId;
+    public Brand(Integer brandId, String brandName) {
+        this.brandId = brandId;
+        this.brandName = brandName;
     }
 }

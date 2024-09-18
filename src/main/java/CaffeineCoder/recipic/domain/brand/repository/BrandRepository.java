@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Long> {
+
     Optional<Brand> findByBrandName(String brandName);
 
     @Query("SELECT b.brandId FROM Brand b WHERE b.brandName = :name")
@@ -18,5 +18,4 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     @Query("SELECT b.brandName FROM Brand b WHERE b.brandId = :brandId")
     String findBrandNameByBrandId(@Param("brandId") Integer brandId);
-
 }

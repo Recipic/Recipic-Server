@@ -1,27 +1,28 @@
 package CaffeineCoder.recipic.domain.brand.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Ingredient {
+public class BaseIngredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ingredient_id")
-    private Integer ingredientId;
+    @Column(name = "baseingredient_id")
+    private Integer baseIngredientId;
 
     @Column(name = "ingredient_name", nullable = false)
     private String ingredientName;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "unit")
+    @Column(name = "unit", nullable = false)
     private String unit;
 
     @Column(name = "cost")
@@ -30,18 +31,15 @@ public class Ingredient {
     @Column(name = "calorie")
     private Double calorie;
 
-    // BaseIngredient와의 관계 설정 (ManyToOne)
-    @ManyToOne
-    @JoinColumn(name = "baseingredient_id", nullable = false)  // 외래 키인 baseingredient_id를 명시
-    private BaseIngredient baseIngredient;
+    // Ingredient와의 관계 설정 (OneToMany)
+    @OneToMany(mappedBy = "baseIngredient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ingredient> ingredients;
 
-    @Builder
-    public Ingredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie, BaseIngredient baseIngredient) {
+    public BaseIngredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
         this.ingredientName = ingredientName;
         this.quantity = quantity;
         this.unit = unit;
         this.cost = cost;
         this.calorie = calorie;
-        this.baseIngredient = baseIngredient;
     }
 }
