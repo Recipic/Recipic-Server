@@ -5,9 +5,11 @@ import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
 import CaffeineCoder.recipic.global.response.ApiResponse;
 import CaffeineCoder.recipic.global.util.ApiUtils;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +26,11 @@ public class RecipeController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
-        recipeService.registerRecipe(recipeRequestDto);
+    public ResponseEntity<Map<String, Object>> registerRecipe(
+            @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
+            @RequestPart(value="thumbnailImage") MultipartFile thumbnailImage
+    ) {
+        recipeService.registerRecipe(recipeRequestDto,thumbnailImage);
 
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
@@ -41,8 +46,11 @@ public class RecipeController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Map<String, Object>> updateRecipe(@RequestBody RecipeRequestDto recipeRequestDto) {
-        boolean isSuccess = recipeService.updateRecipe(recipeRequestDto);
+    public ResponseEntity<Map<String, Object>> updateRecipe(
+            @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
+            @RequestPart(value="thumbnailImage") MultipartFile thumbnailImage
+    ) {
+        boolean isSuccess = recipeService.updateRecipe(recipeRequestDto, thumbnailImage);
 
         Map<String, Object> response = new HashMap<>();
         response.put("isSuccess", isSuccess);

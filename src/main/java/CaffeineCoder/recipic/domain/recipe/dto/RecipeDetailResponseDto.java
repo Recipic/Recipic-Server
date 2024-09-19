@@ -33,7 +33,7 @@ public class RecipeDetailResponseDto {
         this.brandName = brandName;
         this.title = title;
         this.description = description;
-        this.thunbnailUrl = thunbnailUrl;
+        this.thunbnailUrl = "https://storage.googleapis.com/recipick-image-bucket/"+thunbnailUrl;
         this.isCelebrity = isCelebrity;
         this.createdAt = createdAt;
         this.status = status;

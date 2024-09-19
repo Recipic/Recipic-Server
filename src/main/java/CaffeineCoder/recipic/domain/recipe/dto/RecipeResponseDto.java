@@ -20,7 +20,7 @@ public record RecipeResponseDto(
     Integer commentCount
 ) {
     public static RecipeResponseDto of(Integer recipeId, String userName,String userProfileImageUrl, String title, String thumbnailUrl,String brandName,String description, Boolean isCelebrity, Timestamp createdAt, Integer status, Integer scrapCount, Integer commentCount) {
-        return new RecipeResponseDto(recipeId, userName,userProfileImageUrl, title,thumbnailUrl,brandName, description, isCelebrity, createdAt, status, scrapCount, commentCount);
+        return new RecipeResponseDto(recipeId, userName,userProfileImageUrl, title,"https://storage.googleapis.com/recipick-image-bucket/"+thumbnailUrl,brandName, description, isCelebrity, createdAt, status, scrapCount, commentCount);
     }
 
     //추후 댓글 개수도 추가
@@ -30,7 +30,7 @@ public record RecipeResponseDto(
                 user.getNickName(),
                 user.getProfileImageUrl(),
                 recipe.getTitle(),
-                recipe.getImageUrl(),
+                "https://storage.googleapis.com/recipick-image-bucket/"+recipe.getImageUrl(),
                 brandName,
                 recipe.getDescription(),
                 recipe.getIsCelebrity(),

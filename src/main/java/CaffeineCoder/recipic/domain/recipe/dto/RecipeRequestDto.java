@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,7 +17,6 @@ public class RecipeRequestDto {
     private Integer recipeId;
     private String brandName;
     private String title;
-    private String thumbnailUrl;
     private List<SelectedRecipeDto> selectedRecipes;
     private String description;
     private Boolean isCelebrity;
