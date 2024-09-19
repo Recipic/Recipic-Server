@@ -49,9 +49,9 @@ public class BrandService {
     }
 
     // Ingredient 추가 (BaseIngredient와 관계)
-    public boolean addIngredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+    public boolean addIngredient(Integer baseIngredientId, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
         // BaseIngredient를 찾음
-        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findByIngredientName(ingredientName);
+        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findById(baseIngredientId);
         if (optionalBaseIngredient.isEmpty()) {
             return false;
         }
@@ -87,6 +87,31 @@ public class BrandService {
                     baseIngredientMap.put("cost", baseIngredient.getCost());
                     baseIngredientMap.put("calorie", baseIngredient.getCalorie());
                     return baseIngredientMap;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // BaseIngredient에 매핑된 Ingredient 조회
+    public List<Map<String, Object>> getIngredientsByBaseIngredientId(Integer baseIngredientId) {
+        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findById(baseIngredientId);
+
+        if (optionalBaseIngredient.isEmpty()) {
+            throw new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId);
+        }
+
+        BaseIngredient baseIngredient = optionalBaseIngredient.get();
+
+        // BaseIngredient에 매핑된 Ingredient들을 가져와 Map으로 변환
+        return baseIngredient.getIngredients().stream()
+                .map(ingredient -> {
+                    Map<String, Object> ingredientMap = new LinkedHashMap<>();
+                    ingredientMap.put("ingredientId", ingredient.getIngredientId());
+                    ingredientMap.put("name", ingredient.getIngredientName());
+                    ingredientMap.put("quantity", ingredient.getQuantity());
+                    ingredientMap.put("unit", ingredient.getUnit());
+                    ingredientMap.put("cost", ingredient.getCost());
+                    ingredientMap.put("calorie", ingredient.getCalorie());
+                    return ingredientMap;
                 })
                 .collect(Collectors.toList());
     }

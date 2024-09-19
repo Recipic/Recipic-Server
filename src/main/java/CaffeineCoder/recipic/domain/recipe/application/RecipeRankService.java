@@ -32,7 +32,7 @@ public class RecipeRankService {
             User user = userService.findUser(recipe.getUserId());
 
             int scrapCount = scrapRepository.countByRecipeId(recipeId);
-            String brandName = recipe.getBrandName(); // getBrandId 대신 getBrandName 사용
+            String brandName = recipe.getBrandName();
 
             topRecipes.add(RecipeResponseDto.fromEntity(recipe, user, brandName, scrapCount, 0));
         }
@@ -52,7 +52,7 @@ public class RecipeRankService {
             int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
             User user = userService.findUser(recipe.getUserId());
 
-            String brandName = recipe.getBrandName(); // getBrandId 대신 getBrandName 사용
+            String brandName = recipe.getBrandName();
 
             topRecipes.add(RecipeResponseDto.fromEntity(recipe, user, brandName, scrapCount, commentCount));
         }

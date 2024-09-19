@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 public record RecipeDto(
         Integer recipeId,
         Long userId,
-        String brandName, // brandId -> brandName으로 변경
+        String brandName,
         String title,
         String description,
         String imageUrl,

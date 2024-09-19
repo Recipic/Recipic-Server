@@ -205,7 +205,7 @@ public class RecipeService {
                 recipeRequestDto.getTitle(),
                 recipeRequestDto.getDescription(),
                 recipeRequestDto.getThumbnailUrl(),
-                brand, // brandName 대신 brand 엔티티를 넘김
+                brand,
                 recipeRequestDto.getIsCelebrity()
         );
 
