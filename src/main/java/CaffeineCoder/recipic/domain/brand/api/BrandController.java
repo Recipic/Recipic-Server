@@ -17,21 +17,17 @@ public class BrandController {
         this.brandService = brandService;
     }
 
-    // BaseIngredient 추가 API
+    // BaseIngredient 추가 API (brandId 사용)
     @PostMapping("/add-baseingredient")
     public ResponseEntity<Map<String, Object>> addBaseIngredientToBrand(@RequestBody Map<String, Object> request) {
-        String brandName = (String) request.get("brandName");
+        Integer brandId = (Integer) request.get("brandId");
         String ingredientName = (String) request.get("ingredientName");
-        Long quantity = request.get("quantity") instanceof Integer
-                ? Long.valueOf((Integer) request.get("quantity"))
-                : (Long) request.get("quantity");
+        Long quantity = Long.parseLong(request.get("quantity").toString());
         String unit = (String) request.get("unit");
         Integer cost = (Integer) request.get("cost");
-        Double calorie = request.get("calorie") instanceof Integer
-                ? Double.valueOf((Integer) request.get("calorie"))
-                : (Double) request.get("calorie");
+        Double calorie = Double.parseDouble(request.get("calorie").toString());
 
-        boolean success = brandService.addBaseIngredientToBrand(brandName, ingredientName, quantity, unit, cost, calorie);
+        boolean success = brandService.addBaseIngredientToBrand(brandId, ingredientName, quantity, unit, cost, calorie);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("isSuccess", success);
@@ -44,14 +40,10 @@ public class BrandController {
     @PostMapping("/add-ingredient")
     public ResponseEntity<Map<String, Object>> addIngredient(@RequestBody Map<String, Object> request) {
         String ingredientName = (String) request.get("ingredientName");
-        Long quantity = request.get("quantity") instanceof Integer
-                ? Long.valueOf((Integer) request.get("quantity"))
-                : (Long) request.get("quantity");
+        Long quantity = Long.parseLong(request.get("quantity").toString());
         String unit = (String) request.get("unit");
         Integer cost = (Integer) request.get("cost");
-        Double calorie = request.get("calorie") instanceof Integer
-                ? Double.valueOf((Integer) request.get("calorie"))
-                : (Double) request.get("calorie");
+        Double calorie = Double.parseDouble(request.get("calorie").toString());
 
         boolean success = brandService.addIngredient(ingredientName, quantity, unit, cost, calorie);
 

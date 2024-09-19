@@ -32,29 +32,30 @@ public class BrandService {
         this.baseIngredientRepository = baseIngredientRepository;
     }
 
-    // BaseIngredient 추가
-    public boolean addBaseIngredientToBrand(String brandName, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
-        Optional<Brand> optionalBrand = brandRepository.findByBrandName(brandName);
+    // BaseIngredient 추가 (brandId 사용)
+    public boolean addBaseIngredientToBrand(Integer brandId, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+        Optional<Brand> optionalBrand = brandRepository.findById(brandId);
         if (optionalBrand.isEmpty()) {
-            return false;
+            throw new RuntimeException("Brand not found with ID: " + brandId);
         }
         Brand brand = optionalBrand.get();
 
         // BaseIngredient 생성 및 저장
         BaseIngredient baseIngredient = new BaseIngredient(ingredientName, quantity, unit, cost, calorie);
-        baseIngredientRepository.save(baseIngredient);
-
-        // BrandIngredient 객체 생성 및 저장 (BaseIngredient와 연결)
-        BrandIngredient brandIngredient = new BrandIngredient();
-        brandIngredient.setBaseIngredient(baseIngredient);
-        brandIngredient.setBrand(brand);
-        brandIngredientRepository.save(brandIngredient);
+        baseIngredient.setBrand(brand);  // Brand와 연결
+        baseIngredientRepository.save(baseIngredient);  // 저장
 
         return true;
     }
 
-    // Ingredient 추가 (BrandIngredient와는 별도로 관리)
+    // Ingredient 추가 (BaseIngredient와 관계)
     public boolean addIngredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+        // BaseIngredient를 찾음
+        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findByIngredientName(ingredientName);
+        if (optionalBaseIngredient.isEmpty()) {
+            return false;
+        }
+
         // Ingredient 생성 및 저장
         Ingredient ingredient = Ingredient.builder()
                 .ingredientName(ingredientName)
@@ -62,9 +63,9 @@ public class BrandService {
                 .unit(unit)
                 .cost(cost)
                 .calorie(calorie)
+                .baseIngredient(optionalBaseIngredient.get())
                 .build();
 
-        // Ingredient 저장
         ingredientRepository.save(ingredient);
 
         return true;
@@ -75,10 +76,9 @@ public class BrandService {
         Brand brand = brandRepository.findByBrandName(brandName)
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
 
-        return brandIngredientRepository.findByBrand(brand)
+        return baseIngredientRepository.findByBrand(brand)
                 .stream()
-                .map(brandIngredient -> {
-                    BaseIngredient baseIngredient = brandIngredient.getBaseIngredient();
+                .map(baseIngredient -> {
                     Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
                     baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
                     baseIngredientMap.put("name", baseIngredient.getIngredientName());
@@ -101,10 +101,5 @@ public class BrandService {
                     return brandMap;
                 })
                 .collect(Collectors.toList());
-    }
-
-    // 브랜드 ID로 브랜드 이름 가져오기
-    public String getBrandNameByBrandId(Integer brandId) {
-        return brandRepository.findBrandNameByBrandId(brandId);
     }
 }

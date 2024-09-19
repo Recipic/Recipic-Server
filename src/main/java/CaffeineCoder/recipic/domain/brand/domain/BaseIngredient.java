@@ -31,6 +31,10 @@ public class BaseIngredient {
     @Column(name = "calorie")
     private Double calorie;
 
+    @ManyToOne
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
+
     // Ingredient와의 관계 설정 (OneToMany)
     @OneToMany(mappedBy = "baseIngredient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingredient> ingredients;
@@ -41,5 +45,9 @@ public class BaseIngredient {
         this.unit = unit;
         this.cost = cost;
         this.calorie = calorie;
+    }
+
+    public void setBrand(Brand brand) {
+        this.brand = brand;
     }
 }

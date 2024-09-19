@@ -61,7 +61,4 @@ public class RecipeController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
     }
-
-
-
 }

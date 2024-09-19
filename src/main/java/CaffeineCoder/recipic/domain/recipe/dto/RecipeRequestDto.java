@@ -14,7 +14,7 @@ import java.util.List;
 public class RecipeRequestDto {
 
     private Integer recipeId;
-    private String brandName;
+    private Integer brandId;
     private String title;
     private String thumbnailUrl;
     private List<SelectedRecipeDto> selectedRecipes;
@@ -28,5 +28,10 @@ public class RecipeRequestDto {
     public static class SelectedRecipeDto {
         private String ingredientName;
         private Integer count;
+        private Boolean isBaseIngredient; // BaseIngredient 여부
+
+        public Boolean isBaseIngredient() {
+            return isBaseIngredient;
+        }
     }
 }

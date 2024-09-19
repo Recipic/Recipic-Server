@@ -32,7 +32,7 @@ public class Ingredient {
 
     // BaseIngredient와의 관계 설정 (ManyToOne)
     @ManyToOne
-    @JoinColumn(name = "baseingredient_id", nullable = false)  // 외래 키인 baseingredient_id를 명시
+    @JoinColumn(name = "baseingredient_id", nullable = false)
     private BaseIngredient baseIngredient;
 
     @Builder

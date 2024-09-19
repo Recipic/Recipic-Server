@@ -16,11 +16,11 @@ public class Brand {
     @Column(name = "brand_id")
     private Integer brandId;
 
-    @Column(name = "brand_name", nullable = false)
+    @Column(name = "brand_name", nullable = false, unique = true)
     private String brandName;
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BrandIngredient> brandIngredients;
+    private List<BaseIngredient> baseIngredients;
 
     public Brand(Integer brandId, String brandName) {
         this.brandId = brandId;
