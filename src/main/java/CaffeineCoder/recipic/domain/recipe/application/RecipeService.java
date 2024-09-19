@@ -280,9 +280,6 @@ public class RecipeService {
     }
 
 
-
-
-
     @Transactional
     public boolean deleteRecipe(Integer recipeId) {
         // 현재 인증된 사용자의 ID
@@ -306,6 +303,7 @@ public class RecipeService {
         recipeRepository.deleteById(recipeId);
         return true;
     }
+
 
     @Transactional
     public boolean updateRecipe(RecipeRequestDto recipeRequestDto) {
