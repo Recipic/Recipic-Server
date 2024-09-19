@@ -21,7 +21,9 @@ import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.user.application.UserService;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,7 +32,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +56,13 @@ public class RecipeService {
     private final BrandService brandService;
     private final ScrapService scrapService;
     private final UserService userService;
+    private final ImageService imageService;
+
+    @Value("${spring.cloud.gcp.storage.bucket}")
+    private String bucketName;
+
+    public void registerRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
+
 
     @Transactional
     public void registerRecipe(RecipeRequestDto recipeRequestDto) {
@@ -61,12 +72,24 @@ public class RecipeService {
         Brand brand = brandRepository.findById(recipeRequestDto.getBrandId())
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
 
+        String uuid = null; // 유저가 이미지를 없애도록 수정한 경우
+
+        try {
+            if (!thumbnailImage.isEmpty()) {
+                uuid = imageService.uploadImage(thumbnailImage);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
         Recipe recipe = Recipe.builder()
                 .userId(userId)
                 .brand(brand)  // brandName 대신 brand 엔티티 직접 사용
                 .title(recipeRequestDto.getTitle())
                 .description(recipeRequestDto.getDescription())
-                .imageUrl(recipeRequestDto.getThumbnailUrl())
+                .imageUrl(uuid)
                 .isCelebrity(recipeRequestDto.getIsCelebrity())
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .status(1)
@@ -183,7 +206,7 @@ public class RecipeService {
     }
 
     @Transactional
-    public boolean updateRecipe(RecipeRequestDto recipeRequestDto) {
+    public boolean updateRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
@@ -201,11 +224,28 @@ public class RecipeService {
                 .orElseThrow(() -> new IllegalArgumentException("Brand not found"));
 
         // 레시피 수정
+
+        String uuid = null; // 유저가 이미지를 없애도록 수정한 경우
+
+        try {
+            if (!thumbnailImage.isEmpty()) {
+                uuid = imageService.uploadImage(thumbnailImage);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(uuid == null){
+            uuid = recipe.getImageUrl();
+        }
+
         recipe.updateRecipe(
                 recipeRequestDto.getTitle(),
                 recipeRequestDto.getDescription(),
                 recipeRequestDto.getThumbnailUrl(),
                 brand,
+                uuid,
+                brandId,  // brandId 설정
                 recipeRequestDto.getIsCelebrity()
         );
 
