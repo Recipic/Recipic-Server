@@ -1,13 +1,7 @@
 package CaffeineCoder.recipic.domain.brand.api;
 
-import CaffeineCoder.recipic.domain.brand.dto.IngredientDTO;
-import CaffeineCoder.recipic.domain.brand.domain.Brand;
-import CaffeineCoder.recipic.domain.brand.domain.BrandIngredient;
-import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
-import CaffeineCoder.recipic.domain.brand.repository.BrandIngredientRepository;
-import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
-import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import CaffeineCoder.recipic.domain.brand.domain.*;
+import CaffeineCoder.recipic.domain.brand.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -20,47 +14,38 @@ import java.util.stream.Collectors;
 public class BrandService {
 
     private final BrandRepository brandRepository;
-    private final BrandIngredientRepository brandIngredientRepository;
+    private final BaseIngredientRepository baseIngredientRepository;
     private final IngredientRepository ingredientRepository;
+    private final BaseIngredientSizeRepository baseIngredientSizeRepository;
 
-    public BrandService(BrandRepository brandRepository, BrandIngredientRepository brandIngredientRepository, IngredientRepository ingredientRepository) {
+    public BrandService(BrandRepository brandRepository, BaseIngredientRepository baseIngredientRepository,
+                        IngredientRepository ingredientRepository, BaseIngredientSizeRepository baseIngredientSizeRepository) {
         this.brandRepository = brandRepository;
-        this.brandIngredientRepository = brandIngredientRepository;
+        this.baseIngredientRepository = baseIngredientRepository;
         this.ingredientRepository = ingredientRepository;
+        this.baseIngredientSizeRepository = baseIngredientSizeRepository;
     }
 
-    public List<Map<String, Object>> getIngredientsByBrandName(String brandName) {
-        Brand brand = brandRepository.findByBrandName(brandName)
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+    // BaseIngredient 추가 (brandId 사용)
+    public boolean addBaseIngredientToBrand(Integer brandId, String ingredientName, String size) {
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found with ID: " + brandId));
 
-        return brandIngredientRepository.findByBrand(brand)
-                .stream()
-                .map(brandIngredient -> {
-                    Ingredient ingredient = brandIngredient.getIngredient();
+        // BaseIngredient 생성 및 저장
+        BaseIngredient baseIngredient = new BaseIngredient(ingredientName, brand);
+        baseIngredientRepository.save(baseIngredient);
 
-                    IngredientDTO dto = new IngredientDTO.Builder()
-                            .ingredientId(ingredient.getIngredientId())
-                            .name(ingredient.getIngredientName())
-                            .quantity(ingredient.getQuantity())
-                            .unit(ingredient.getUnit())
-                            .cost(ingredient.getCost())
-                            .calorie(ingredient.getCalorie())
-                            .build();
+        // BaseIngredientSize도 생성 및 저장
+        BaseIngredientSize baseIngredientSize = new BaseIngredientSize(size, baseIngredient);
+        baseIngredientSizeRepository.save(baseIngredientSize);
 
-                    return dto.toMap();
-                })
-                .collect(Collectors.toList());
+        return true;
     }
 
-    public boolean addIngredientToBrand(String brandName, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
-
-        Optional<Brand> optionalBrand = brandRepository.findByBrandName(brandName);
-        if (optionalBrand.isEmpty()) {
-            return false;
-        }
-        Brand brand = optionalBrand.get();
-
-        // 새로운 Ingredient 객체 생성
+    // Ingredient 추가 (BaseIngredient와 연결)
+    public boolean addIngredient(Integer baseIngredientId, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+        BaseIngredient baseIngredient = baseIngredientRepository.findById(baseIngredientId)
+                .orElseThrow(() -> new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId));
 
         Ingredient ingredient = Ingredient.builder()
                 .ingredientName(ingredientName)
@@ -68,21 +53,50 @@ public class BrandService {
                 .unit(unit)
                 .cost(cost)
                 .calorie(calorie)
+                .baseIngredient(baseIngredient)
                 .build();
 
-        // Ingredient 저장
         ingredientRepository.save(ingredient);
-
-        // BrandIngredient 객체 생성
-        BrandIngredient brandIngredient = new BrandIngredient();
-        brandIngredient.setIngredient(ingredient);
-        brandIngredient.setBrand(brand);
-        brandIngredientRepository.save(brandIngredient);
-
         return true;
     }
 
-    //모든 브랜드 가져오기
+    // 브랜드 이름으로 BaseIngredient 가져오기
+    public List<Map<String, Object>> getBaseIngredientsByBrandName(String brandName) {
+        Brand brand = brandRepository.findByBrandName(brandName)
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+
+        return baseIngredientRepository.findByBrand(brand)
+                .stream()
+                .map(baseIngredient -> {
+                    Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
+                    baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
+                    baseIngredientMap.put("name", baseIngredient.getIngredientName());
+                    return baseIngredientMap;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // BaseIngredient에 매핑된 Ingredient 조회
+    public List<Map<String, Object>> getIngredientsByBaseIngredientId(Integer baseIngredientId) {
+        BaseIngredient baseIngredient = baseIngredientRepository.findById(baseIngredientId)
+                .orElseThrow(() -> new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId));
+
+        // BaseIngredient에 매핑된 Ingredient들을 가져와 Map으로 변환
+        return baseIngredient.getIngredients().stream()
+                .map(ingredient -> {
+                    Map<String, Object> ingredientMap = new LinkedHashMap<>();
+                    ingredientMap.put("ingredientId", ingredient.getIngredientId());
+                    ingredientMap.put("name", ingredient.getIngredientName());
+                    ingredientMap.put("quantity", ingredient.getQuantity());
+                    ingredientMap.put("unit", ingredient.getUnit());
+                    ingredientMap.put("cost", ingredient.getCost());
+                    ingredientMap.put("calorie", ingredient.getCalorie());
+                    return ingredientMap;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 모든 브랜드 가져오기
     public List<Map<String, Object>> getAllBrands() {
         return brandRepository.findAll().stream()
                 .map(brand -> {
@@ -92,9 +106,5 @@ public class BrandService {
                     return brandMap;
                 })
                 .collect(Collectors.toList());
-    }
-      
-    public String getBrandNameByBrandId(Integer brandId) {
-        return brandRepository.findBrandNameByBrandId(brandId);
     }
 }

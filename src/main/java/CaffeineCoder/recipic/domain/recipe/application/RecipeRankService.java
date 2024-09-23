@@ -7,7 +7,6 @@ import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.user.application.UserService;
-import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,27 +22,20 @@ public class RecipeRankService {
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
-    private final BrandService brandService;
-
 
     public List<RecipeResponseDto> getTop5NormalRecipes() {
-
         List<Integer> topRecipeIds = scrapRepository.findTop5NormalRecipesByScrapCount(PageRequest.of(0, 5));
 
         List<RecipeResponseDto> topRecipes = new ArrayList<>();
-
-        for(int i=0; i<topRecipeIds.size(); i++){
-            Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
-            int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
-            int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
-
+        for (int recipeId : topRecipeIds) {
+            Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
             User user = userService.findUser(recipe.getUserId());
 
-            String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
+            int scrapCount = scrapRepository.countByRecipeId(recipeId);
+            String brandName = recipe.getBrandName();
 
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe,user,brandName, scrapCount,commentCount));
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe, user, brandName, scrapCount, 0));
         }
-
 
         return topRecipes;
     }
@@ -54,18 +46,17 @@ public class RecipeRankService {
 
         List<RecipeResponseDto> topRecipes = new ArrayList<>();
 
-        for(int i=0; i<topRecipeIds.size(); i++){
-            Recipe recipe = recipeRepository.findById(topRecipeIds.get(i)).orElseThrow(() -> new RuntimeException("Recipe not found"));
+        for (int recipeId : topRecipeIds) {
+            Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
             int scrapCount = scrapRepository.countByRecipeId(recipe.getRecipeId());
             int commentCount = commentRepository.countByRecipeId(recipe.getRecipeId());
             User user = userService.findUser(recipe.getUserId());
 
-            String brandName = brandService.getBrandNameByBrandId(recipe.getBrandId());
+            String brandName = recipe.getBrandName();
 
-            topRecipes.add(RecipeResponseDto.fromEntity(recipe,user,brandName, scrapCount,commentCount));
+            topRecipes.add(RecipeResponseDto.fromEntity(recipe, user, brandName, scrapCount, commentCount));
         }
 
         return topRecipes;
     }
-
 }

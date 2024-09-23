@@ -18,21 +18,13 @@ public class BrandIngredient {
     private Brand brand;
 
     @ManyToOne
-    @MapsId("ingredientId")
-    @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredient;
+    @MapsId("baseIngredientId")
+    @JoinColumn(name = "baseingredient_id")
+    private BaseIngredient baseIngredient;
 
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
-        if (this.brand != null) {
-            this.id = new BrandIngredientId(this.brand.getBrandId(), ingredient.getIngredientId());
-        }
-    }
-
-    public void setBrand(Brand brand) {
+    public BrandIngredient(Brand brand, BaseIngredient baseIngredient) {
         this.brand = brand;
-        if (this.ingredient != null) {
-            this.id = new BrandIngredientId(brand.getBrandId(), this.ingredient.getIngredientId());
-        }
+        this.baseIngredient = baseIngredient;
+        this.id = new BrandIngredientId(brand.getBrandId(), baseIngredient.getBaseIngredientId());
     }
 }

@@ -24,12 +24,13 @@ public record RecipeResponseDto(
     }
 
     //추후 댓글 개수도 추가
-    public static RecipeResponseDto fromEntity(Recipe recipe, User user,String brandName, int scrapCount, int commentCount) {
+    public static RecipeResponseDto fromEntity(Recipe recipe, User user, String brandName, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipe.getRecipeId(),
                 user.getNickName(),
                 user.getProfileImageUrl(),
                 recipe.getTitle(),
+
                 "https://storage.googleapis.com/recipick-image-bucket/"+recipe.getImageUrl(),
                 brandName,
                 recipe.getDescription(),
@@ -40,7 +41,6 @@ public record RecipeResponseDto(
                 commentCount
         );
     }
-    
     public static RecipeResponseDto fromDto(RecipeDto recipeDto,User user,String brandName, int scrapCount, int commentCount) {
         return new RecipeResponseDto(
                 recipeDto.recipeId(),

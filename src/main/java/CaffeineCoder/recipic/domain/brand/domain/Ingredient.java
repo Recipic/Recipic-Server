@@ -3,9 +3,11 @@ package CaffeineCoder.recipic.domain.brand.domain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Ingredient {
 
     @Id
@@ -13,31 +15,33 @@ public class Ingredient {
     @Column(name = "ingredient_id")
     private Integer ingredientId;
 
-    @Column(name = "ingredient_name")
-    private String ingredientName;  // 재료 이름
+    @Column(name = "ingredient_name", nullable = false)
+    private String ingredientName;
 
-    @Column(name = "quantity")
-    private Long quantity; // 양
+    @Column(name = "quantity", nullable = false)
+    private Long quantity;
 
-    @Column(name = "unit")
-    private String unit;  // 단위
+    @Column(name = "unit", nullable = false)
+    private String unit;
 
     @Column(name = "cost")
-    private Integer cost;  // 비용
+    private Integer cost;
 
     @Column(name = "calorie")
-    private Double calorie;  // 칼로리
+    private Double calorie;
+
+    // BaseIngredient와 관계 설정 (ManyToOne)
+    @ManyToOne
+    @JoinColumn(name = "baseingredient_id", nullable = false)
+    private BaseIngredient baseIngredient;
 
     @Builder
-    public Ingredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
+    public Ingredient(String ingredientName, Long quantity, String unit, Integer cost, Double calorie, BaseIngredient baseIngredient) {
         this.ingredientName = ingredientName;
         this.quantity = quantity;
         this.unit = unit;
         this.cost = cost;
         this.calorie = calorie;
-    }
-
-    // 기본 생성자 추가
-    protected Ingredient() {
+        this.baseIngredient = baseIngredient;
     }
 }

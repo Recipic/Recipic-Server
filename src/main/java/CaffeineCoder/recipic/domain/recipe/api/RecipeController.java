@@ -21,7 +21,6 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     public RecipeController(RecipeService recipeService) {
-
         this.recipeService = recipeService;
     }
 
@@ -30,14 +29,13 @@ public class RecipeController {
             @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
             @RequestPart(value="thumbnailImage") MultipartFile thumbnailImage
     ) {
-        recipeService.registerRecipe(recipeRequestDto,thumbnailImage);
+        recipeService.registerRecipe(recipeRequestDto, thumbnailImage);
 
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
 
-    @DeleteMapping("/remove")
-    public ResponseEntity<Map<String, Object>> deleteRecipe(@RequestBody Map<String, Integer> request) {
-        Integer recipeId = request.get("recipeId");
+    @GetMapping("/remove")
+    public ResponseEntity<Map<String, Object>> deleteRecipe(@RequestParam Integer recipeId) {
         boolean isSuccess = recipeService.deleteRecipe(recipeId);
 
         Map<String, Object> response = new HashMap<>();
@@ -69,7 +67,4 @@ public class RecipeController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
     }
-
-
-
 }
