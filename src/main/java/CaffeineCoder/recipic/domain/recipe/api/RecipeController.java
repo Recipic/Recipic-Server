@@ -34,7 +34,7 @@ public class RecipeController {
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
 
-    @GetMapping("/remove")
+    @DeleteMapping("/remove")
     public ResponseEntity<Map<String, Object>> deleteRecipe(@RequestParam Integer recipeId) {
         boolean isSuccess = recipeService.deleteRecipe(recipeId);
 
