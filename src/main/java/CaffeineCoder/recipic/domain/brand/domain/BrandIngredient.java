@@ -22,17 +22,9 @@ public class BrandIngredient {
     @JoinColumn(name = "baseingredient_id")
     private BaseIngredient baseIngredient;
 
-    public void setBaseIngredient(BaseIngredient baseIngredient) {
-        this.baseIngredient = baseIngredient;
-        if (this.brand != null) {
-            this.id = new BrandIngredientId(this.brand.getBrandId(), baseIngredient.getBaseIngredientId());
-        }
-    }
-
-    public void setBrand(Brand brand) {
+    public BrandIngredient(Brand brand, BaseIngredient baseIngredient) {
         this.brand = brand;
-        if (this.baseIngredient != null) {
-            this.id = new BrandIngredientId(brand.getBrandId(), this.baseIngredient.getBaseIngredientId());
-        }
+        this.baseIngredient = baseIngredient;
+        this.id = new BrandIngredientId(brand.getBrandId(), baseIngredient.getBaseIngredientId());
     }
 }

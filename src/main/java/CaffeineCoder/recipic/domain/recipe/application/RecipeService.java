@@ -7,7 +7,6 @@ import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
 import CaffeineCoder.recipic.domain.brand.repository.BaseIngredientRepository;
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
-import CaffeineCoder.recipic.domain.comment.dao.CommentLikeRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
@@ -21,7 +20,6 @@ import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.user.application.UserService;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -48,10 +46,9 @@ public class RecipeService {
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final BrandRepository brandRepository;
     private final IngredientRepository ingredientRepository;
+    private final BaseIngredientRepository baseIngredientRepository;
     private final ScrapRepository scrapRepository;
     private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
-    private final BaseIngredientRepository baseIngredientRepository;
     private final UserRepository userRepository;
     private final BrandService brandService;
     private final ScrapService scrapService;
@@ -61,18 +58,14 @@ public class RecipeService {
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
 
-    public void registerRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
-
-
     @Transactional
-    public void registerRecipe(RecipeRequestDto recipeRequestDto) {
+    public void registerRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
         Long userId = SecurityUtil.getCurrentMemberId();
 
-        // brandId로 Brand 찾기
         Brand brand = brandRepository.findById(recipeRequestDto.getBrandId())
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
 
-        String uuid = null; // 유저가 이미지를 없애도록 수정한 경우
+        String uuid = null;
 
         try {
             if (!thumbnailImage.isEmpty()) {
@@ -82,11 +75,9 @@ public class RecipeService {
             e.printStackTrace();
         }
 
-
-
         Recipe recipe = Recipe.builder()
                 .userId(userId)
-                .brand(brand)  // brandName 대신 brand 엔티티 직접 사용
+                .brand(brand)
                 .title(recipeRequestDto.getTitle())
                 .description(recipeRequestDto.getDescription())
                 .imageUrl(uuid)
@@ -97,7 +88,6 @@ public class RecipeService {
 
         Recipe savedRecipe = recipeRepository.save(recipe);
 
-        // BaseIngredient와 Ingredient 구분하여 처리
         List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
                 .map(selectedRecipe -> {
                     RecipeIngredient.RecipeIngredientBuilder recipeIngredientBuilder = RecipeIngredient.builder();
@@ -107,13 +97,21 @@ public class RecipeService {
                         BaseIngredient baseIngredient = baseIngredientRepository.findByIngredientName(selectedRecipe.getIngredientName())
                                 .orElseThrow(() -> new RuntimeException("Base Ingredient not found: " + selectedRecipe.getIngredientName()));
 
-                        recipeIngredientId = new RecipeIngredientId(baseIngredient.getIngredientName(), savedRecipe.getRecipeId());
+                        recipeIngredientId = new RecipeIngredientId(
+                                savedRecipe.getRecipeId(),
+                                null,
+                                baseIngredient.getBaseIngredientId()
+                        );
                         recipeIngredientBuilder.baseIngredient(baseIngredient);
                     } else {
                         Ingredient ingredient = ingredientRepository.findByIngredientName(selectedRecipe.getIngredientName())
                                 .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientName()));
 
-                        recipeIngredientId = new RecipeIngredientId(ingredient.getIngredientName(), savedRecipe.getRecipeId());
+                        recipeIngredientId = new RecipeIngredientId(
+                                savedRecipe.getRecipeId(),
+                                ingredient.getIngredientId(),
+                                null
+                        );
                         recipeIngredientBuilder.ingredient(ingredient);
                     }
 
@@ -127,7 +125,6 @@ public class RecipeService {
 
         recipeIngredientRepository.saveAll(recipeIngredients);
     }
-
 
     public RecipeDetailResponseDto getRecipeDetail(Integer recipeId) {
         Recipe recipe = recipeRepository.findById(recipeId)
@@ -148,19 +145,24 @@ public class RecipeService {
         List<RecipeIngredient> ingredients = recipeIngredientRepository.findByRecipeId(recipeId);
         List<IncludeIngredientDto> includeIngredients = ingredients.stream()
                 .map(ingredient -> {
-                    Integer ingredientId = ingredient.getIngredient().getIngredientId();
-                    Ingredient foundIngredient = ingredientRepository.findById(ingredientId)
-                            .orElse(null);
-
-                    return IncludeIngredientDto.builder()
-                            .ingredient(foundIngredient)
-                            .count(ingredient.getCount())
-                            .build();
+                    if (ingredient.getIngredient() != null) {
+                        Ingredient foundIngredient = ingredient.getIngredient();
+                        return IncludeIngredientDto.builder()
+                                .ingredient(foundIngredient)
+                                .count(ingredient.getCount())
+                                .build();
+                    } else {
+                        BaseIngredient foundBaseIngredient = ingredient.getBaseIngredient();
+                        return IncludeIngredientDto.builder()
+                                .baseIngredient(foundBaseIngredient)
+                                .count(ingredient.getCount())
+                                .build();
+                    }
                 })
                 .collect(Collectors.toList());
 
-        Optional<User> optionalUser = userRepository.findById(recipe.getUserId());
-        User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(recipe.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         String brandName = recipe.getBrandName();
 
@@ -183,24 +185,19 @@ public class RecipeService {
 
     @Transactional
     public boolean deleteRecipe(Integer recipeId) {
-        // 현재 인증된 사용자의 ID를 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = SecurityUtil.getCurrentMemberId();
 
-        // 해당 ID의 레시피를 찾기
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        // 레시피 작성자와 현재 사용자가 같은지 확인
         if (!recipe.getUserId().equals(userId)) {
             throw new IllegalArgumentException("You are not authorized to delete this recipe");
         }
 
-        // 레시피와 관련된 스크랩과 댓글 삭제
         scrapRepository.deleteByRecipeId(recipeId);
         commentRepository.deleteByRecipeId(recipeId);
 
-        // 레시피 삭제
         recipeRepository.deleteById(recipeId);
         return true;
     }
@@ -208,24 +205,19 @@ public class RecipeService {
     @Transactional
     public boolean updateRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = SecurityUtil.getCurrentMemberId();
 
-        // 수정할 레시피를 찾기
-        Recipe recipe = recipeRepository.findById(Integer.valueOf(recipeRequestDto.getRecipeId()))
+        Recipe recipe = recipeRepository.findById(recipeRequestDto.getRecipeId())
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        // 레시피 작성자와 현재 사용자가 같은지 확인
         if (!recipe.getUserId().equals(userId)) {
             throw new IllegalArgumentException("You are not authorized to update this recipe");
         }
 
-        // brandId로 Brand 찾기
         Brand brand = brandRepository.findById(recipeRequestDto.getBrandId())
                 .orElseThrow(() -> new IllegalArgumentException("Brand not found"));
 
-        // 레시피 수정
-
-        String uuid = null; // 유저가 이미지를 없애도록 수정한 경우
+        String uuid = null;
 
         try {
             if (!thumbnailImage.isEmpty()) {
@@ -235,44 +227,55 @@ public class RecipeService {
             e.printStackTrace();
         }
 
-        if(uuid == null){
+        if (uuid == null) {
             uuid = recipe.getImageUrl();
         }
 
         recipe.updateRecipe(
                 recipeRequestDto.getTitle(),
                 recipeRequestDto.getDescription(),
-                recipeRequestDto.getThumbnailUrl(),
-                brand,
                 uuid,
-                brandId,  // brandId 설정
+                brand,
                 recipeRequestDto.getIsCelebrity()
         );
 
-        // 레시피 저장
         recipeRepository.save(recipe);
 
-        // 기존 재료 삭제 후 재추가
         recipeIngredientRepository.deleteByRecipeId(recipe.getRecipeId());
 
         List<RecipeIngredient> recipeIngredients = recipeRequestDto.getSelectedRecipes().stream()
                 .map(selectedRecipe -> {
-                    String ingredientName = ingredientRepository.findByIngredientName(selectedRecipe.getIngredientName())
-                            .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientName()))
-                            .getIngredientName();
+                    RecipeIngredientId recipeIngredientId;
 
-                    RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
-                            ingredientName,
-                            recipe.getRecipeId()
-                    );
-
-                    return RecipeIngredient.builder()
-                            .id(recipeIngredientId)
-                            .recipe(recipe)
-                            .ingredient(ingredientRepository.findByIngredientName(ingredientName)
-                                    .orElseThrow(() -> new RuntimeException("Ingredient not found: " + ingredientName)))
-                            .count(selectedRecipe.getCount())
-                            .build();
+                    if (selectedRecipe.isBaseIngredient()) {
+                        BaseIngredient baseIngredient = baseIngredientRepository.findByIngredientName(selectedRecipe.getIngredientName())
+                                .orElseThrow(() -> new RuntimeException("Base Ingredient not found: " + selectedRecipe.getIngredientName()));
+                        recipeIngredientId = new RecipeIngredientId(
+                                recipe.getRecipeId(),
+                                null,
+                                baseIngredient.getBaseIngredientId()
+                        );
+                        return RecipeIngredient.builder()
+                                .id(recipeIngredientId)
+                                .recipe(recipe)
+                                .baseIngredient(baseIngredient)
+                                .count(selectedRecipe.getCount())
+                                .build();
+                    } else {
+                        Ingredient ingredient = ingredientRepository.findByIngredientName(selectedRecipe.getIngredientName())
+                                .orElseThrow(() -> new RuntimeException("Ingredient not found: " + selectedRecipe.getIngredientName()));
+                        recipeIngredientId = new RecipeIngredientId(
+                                recipe.getRecipeId(),
+                                ingredient.getIngredientId(),
+                                null
+                        );
+                        return RecipeIngredient.builder()
+                                .id(recipeIngredientId)
+                                .recipe(recipe)
+                                .ingredient(ingredient)
+                                .count(selectedRecipe.getCount())
+                                .build();
+                    }
                 })
                 .collect(Collectors.toList());
 
@@ -281,16 +284,12 @@ public class RecipeService {
         return true;
     }
 
-
     public List<RecipeResponseDto> getQueriedRecipes(String keyword, int page, int size) {
         if (keyword.equals("-1")) {
             return getAllRecipes(page, size);
         }
 
-        // brandName으로 검색
-        String brandName = keyword;
-
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandName(brandName, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandName(keyword, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
         List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
 
         return recipeDtos.stream()
@@ -298,58 +297,45 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<RecipeResponseDto> getUserQueriedRecipes(String keyword, int page, int size, Long userId) {
         if (keyword.equals("-1")) {
             return getAllUserRecipes(page, size, userId);
         }
 
-        // brandName으로 검색
-        String brandName = keyword;
-
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandNameAndUserId(brandName, userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        return recipeDtos.stream()
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandNameAndUserId(keyword, userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        return recipeDtoPage.getContent().stream()
                 .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<RecipeResponseDto> getUserQueriedScrapedRecipes(String keyword, int page, int size, List<Integer> recipeIds) {
         if (keyword.equals("-1")) {
             return getUserAllScrapedRecipes(page, size, recipeIds);
         }
 
-        // brandName으로 검색
-        String brandName = keyword;
-
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandNameAndRecipeIds(brandName, recipeIds, PageRequest.of(page, size));
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        return recipeDtos.stream()
+        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandNameAndRecipeIds(keyword, recipeIds, PageRequest.of(page, size));
+        return recipeDtoPage.getContent().stream()
                 .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
     }
 
-
-    public List<RecipeResponseDto> getAllRecipes(int page, int size) {
+    private List<RecipeResponseDto> getAllRecipes(int page, int size) {
         Page<Recipe> recipePage = recipeRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        List<Recipe> recipes = recipePage.getContent();
-
-        return recipes.stream()
+        return recipePage.getContent().stream()
                 .map(this::getRecipeToRecipeResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public List<RecipeResponseDto> getAllUserRecipes(int page, int size, Long userId) {
+    private List<RecipeResponseDto> getAllUserRecipes(int page, int size, Long userId) {
         Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByUserId(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        return recipeDtos.stream()
+        return recipeDtoPage.getContent().stream()
                 .map(this::getRecipeDtoToRecipeResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public List<RecipeResponseDto> getUserAllScrapedRecipes(int page, int size, List<Integer> recipeIds) {
+    private List<RecipeResponseDto> getUserAllScrapedRecipes(int page, int size, List<Integer> recipeIds) {
         Page<RecipeDto> recipeDtoPages = recipeRepository.findRecipesByRecipeIds(recipeIds, PageRequest.of(page, size));
         List<RecipeDto> recipeDtos = recipeDtoPages.getContent();
 

@@ -13,6 +13,5 @@ public interface BaseIngredientRepository extends JpaRepository<BaseIngredient, 
 
     // BaseIngredient 이름으로 찾기
     Optional<BaseIngredient> findByIngredientName(String ingredientName);
-
     List<BaseIngredient> findByBrand(Brand brand);
 }

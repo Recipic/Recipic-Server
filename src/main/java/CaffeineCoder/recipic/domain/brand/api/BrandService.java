@@ -1,13 +1,7 @@
 package CaffeineCoder.recipic.domain.brand.api;
 
-import CaffeineCoder.recipic.domain.brand.domain.BaseIngredient;
-import CaffeineCoder.recipic.domain.brand.domain.Brand;
-import CaffeineCoder.recipic.domain.brand.domain.BrandIngredient;
-import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
-import CaffeineCoder.recipic.domain.brand.repository.BaseIngredientRepository;
-import CaffeineCoder.recipic.domain.brand.repository.BrandIngredientRepository;
-import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
-import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
+import CaffeineCoder.recipic.domain.brand.domain.*;
+import CaffeineCoder.recipic.domain.brand.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -20,54 +14,49 @@ import java.util.stream.Collectors;
 public class BrandService {
 
     private final BrandRepository brandRepository;
-    private final BrandIngredientRepository brandIngredientRepository;
-    private final IngredientRepository ingredientRepository;
     private final BaseIngredientRepository baseIngredientRepository;
+    private final IngredientRepository ingredientRepository;
+    private final BaseIngredientSizeRepository baseIngredientSizeRepository;
 
-    public BrandService(BrandRepository brandRepository, BrandIngredientRepository brandIngredientRepository,
-                        IngredientRepository ingredientRepository, BaseIngredientRepository baseIngredientRepository) {
+    public BrandService(BrandRepository brandRepository, BaseIngredientRepository baseIngredientRepository,
+                        IngredientRepository ingredientRepository, BaseIngredientSizeRepository baseIngredientSizeRepository) {
         this.brandRepository = brandRepository;
-        this.brandIngredientRepository = brandIngredientRepository;
-        this.ingredientRepository = ingredientRepository;
         this.baseIngredientRepository = baseIngredientRepository;
+        this.ingredientRepository = ingredientRepository;
+        this.baseIngredientSizeRepository = baseIngredientSizeRepository;
     }
 
     // BaseIngredient 추가 (brandId 사용)
-    public boolean addBaseIngredientToBrand(Integer brandId, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
-        Optional<Brand> optionalBrand = brandRepository.findById(brandId);
-        if (optionalBrand.isEmpty()) {
-            throw new RuntimeException("Brand not found with ID: " + brandId);
-        }
-        Brand brand = optionalBrand.get();
+    public boolean addBaseIngredientToBrand(Integer brandId, String ingredientName, String size) {
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found with ID: " + brandId));
 
         // BaseIngredient 생성 및 저장
-        BaseIngredient baseIngredient = new BaseIngredient(ingredientName, quantity, unit, cost, calorie);
-        baseIngredient.setBrand(brand);  // Brand와 연결
-        baseIngredientRepository.save(baseIngredient);  // 저장
+        BaseIngredient baseIngredient = new BaseIngredient(ingredientName, brand);
+        baseIngredientRepository.save(baseIngredient);
+
+        // BaseIngredientSize도 생성 및 저장
+        BaseIngredientSize baseIngredientSize = new BaseIngredientSize(size, baseIngredient);
+        baseIngredientSizeRepository.save(baseIngredientSize);
 
         return true;
     }
 
-    // Ingredient 추가 (BaseIngredient와 관계)
+    // Ingredient 추가 (BaseIngredient와 연결)
     public boolean addIngredient(Integer baseIngredientId, String ingredientName, Long quantity, String unit, Integer cost, Double calorie) {
-        // BaseIngredient를 찾음
-        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findById(baseIngredientId);
-        if (optionalBaseIngredient.isEmpty()) {
-            return false;
-        }
+        BaseIngredient baseIngredient = baseIngredientRepository.findById(baseIngredientId)
+                .orElseThrow(() -> new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId));
 
-        // Ingredient 생성 및 저장
         Ingredient ingredient = Ingredient.builder()
                 .ingredientName(ingredientName)
                 .quantity(quantity)
                 .unit(unit)
                 .cost(cost)
                 .calorie(calorie)
-                .baseIngredient(optionalBaseIngredient.get())
+                .baseIngredient(baseIngredient)
                 .build();
 
         ingredientRepository.save(ingredient);
-
         return true;
     }
 
@@ -82,10 +71,6 @@ public class BrandService {
                     Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
                     baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
                     baseIngredientMap.put("name", baseIngredient.getIngredientName());
-                    baseIngredientMap.put("quantity", baseIngredient.getQuantity());
-                    baseIngredientMap.put("unit", baseIngredient.getUnit());
-                    baseIngredientMap.put("cost", baseIngredient.getCost());
-                    baseIngredientMap.put("calorie", baseIngredient.getCalorie());
                     return baseIngredientMap;
                 })
                 .collect(Collectors.toList());
@@ -93,13 +78,8 @@ public class BrandService {
 
     // BaseIngredient에 매핑된 Ingredient 조회
     public List<Map<String, Object>> getIngredientsByBaseIngredientId(Integer baseIngredientId) {
-        Optional<BaseIngredient> optionalBaseIngredient = baseIngredientRepository.findById(baseIngredientId);
-
-        if (optionalBaseIngredient.isEmpty()) {
-            throw new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId);
-        }
-
-        BaseIngredient baseIngredient = optionalBaseIngredient.get();
+        BaseIngredient baseIngredient = baseIngredientRepository.findById(baseIngredientId)
+                .orElseThrow(() -> new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId));
 
         // BaseIngredient에 매핑된 Ingredient들을 가져와 Map으로 변환
         return baseIngredient.getIngredients().stream()

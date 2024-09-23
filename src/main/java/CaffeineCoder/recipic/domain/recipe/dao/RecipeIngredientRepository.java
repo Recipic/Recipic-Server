@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface RecipeIngredientRepository extends JpaRepository<RecipeIngredient, RecipeIngredientId> {
+
     @Query("SELECT ri FROM RecipeIngredient ri WHERE ri.recipe.recipeId = :recipeId")
     List<RecipeIngredient> findByRecipeId(@Param("recipeId") Integer recipeId);
 

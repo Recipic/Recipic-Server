@@ -20,6 +20,11 @@ public class RecipeRequestDto {
     private List<SelectedRecipeDto> selectedRecipes;
     private String description;
     private Boolean isCelebrity;
+    private String thumbnailUrl;
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
 
     @Getter
     @NoArgsConstructor
@@ -28,7 +33,7 @@ public class RecipeRequestDto {
     public static class SelectedRecipeDto {
         private String ingredientName;
         private Integer count;
-        private Boolean isBaseIngredient; // BaseIngredient 여부
+        private Boolean isBaseIngredient;
 
         public Boolean isBaseIngredient() {
             return isBaseIngredient;

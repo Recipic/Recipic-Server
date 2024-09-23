@@ -86,6 +86,8 @@ public class Recipe {
         this.isCelebrity = isCelebrity;
     }
 
+
+
     // Brand의 이름을 반환하는 메서드
     public String getBrandName() {
         return this.brand != null ? this.brand.getBrandName() : null;

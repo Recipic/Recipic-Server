@@ -18,10 +18,10 @@ public class Ingredient {
     @Column(name = "ingredient_name", nullable = false)
     private String ingredientName;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "unit")
+    @Column(name = "unit", nullable = false)
     private String unit;
 
     @Column(name = "cost")
@@ -30,7 +30,7 @@ public class Ingredient {
     @Column(name = "calorie")
     private Double calorie;
 
-    // BaseIngredient와의 관계 설정 (ManyToOne)
+    // BaseIngredient와 관계 설정 (ManyToOne)
     @ManyToOne
     @JoinColumn(name = "baseingredient_id", nullable = false)
     private BaseIngredient baseIngredient;

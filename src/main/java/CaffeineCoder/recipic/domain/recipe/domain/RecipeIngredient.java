@@ -20,16 +20,16 @@ public class RecipeIngredient {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    // 일반 재료 매핑
+    // 사이드 재료 매핑
     @ManyToOne
-    @MapsId("ingredientName")
-    @JoinColumn(name = "ingredient_name", referencedColumnName = "ingredient_name")
+    @MapsId("ingredientId")
+    @JoinColumn(name = "ingredient_id", referencedColumnName = "ingredient_id", insertable = false, updatable = false)
     private Ingredient ingredient;
 
-    // 기본 재료 매핑
+    // 베이스 재료 매핑
     @ManyToOne
-    @MapsId("ingredientName")
-    @JoinColumn(name = "base_ingredient_name", referencedColumnName = "ingredient_name")
+    @MapsId("baseIngredientId")
+    @JoinColumn(name = "baseingredient_id", referencedColumnName = "baseingredient_id", insertable = false, updatable = false)
     private BaseIngredient baseIngredient;
 
     @Column(name = "count")

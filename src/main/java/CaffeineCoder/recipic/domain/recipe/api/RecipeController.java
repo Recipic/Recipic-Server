@@ -21,7 +21,6 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     public RecipeController(RecipeService recipeService) {
-
         this.recipeService = recipeService;
     }
 
@@ -30,7 +29,7 @@ public class RecipeController {
             @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
             @RequestPart(value="thumbnailImage") MultipartFile thumbnailImage
     ) {
-        recipeService.registerRecipe(recipeRequestDto,thumbnailImage);
+        recipeService.registerRecipe(recipeRequestDto, thumbnailImage);
 
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }

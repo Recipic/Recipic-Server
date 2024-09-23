@@ -13,15 +13,19 @@ import java.util.Objects;
 @NoArgsConstructor
 public class RecipeIngredientId implements Serializable {
 
-    @Column(name = "ingredient_name")
-    private String ingredientName;
-
     @Column(name = "recipe_id")
     private Integer recipeId;
 
-    public RecipeIngredientId(String ingredientName, Integer recipeId) {
-        this.ingredientName = ingredientName;
+    @Column(name = "ingredient_id", nullable = true)
+    private Integer ingredientId;
+
+    @Column(name = "baseingredient_id", nullable = true)
+    private Integer baseIngredientId;
+
+    public RecipeIngredientId(Integer recipeId, Integer ingredientId, Integer baseIngredientId) {
         this.recipeId = recipeId;
+        this.ingredientId = ingredientId;
+        this.baseIngredientId = baseIngredientId;
     }
 
     @Override
@@ -29,12 +33,13 @@ public class RecipeIngredientId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RecipeIngredientId that = (RecipeIngredientId) o;
-        return Objects.equals(ingredientName, that.ingredientName) &&
-                Objects.equals(recipeId, that.recipeId);
+        return Objects.equals(recipeId, that.recipeId) &&
+                Objects.equals(ingredientId, that.ingredientId) &&
+                Objects.equals(baseIngredientId, that.baseIngredientId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ingredientName, recipeId);
+        return Objects.hash(recipeId, ingredientId, baseIngredientId);
     }
 }
