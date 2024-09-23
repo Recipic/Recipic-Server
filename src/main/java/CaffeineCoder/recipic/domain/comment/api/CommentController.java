@@ -43,8 +43,7 @@ public class CommentController {
 
     // 댓글 삭제 메소드
     @DeleteMapping
-    public ResponseEntity<Map<String, Object>> deleteComment(@RequestBody Map<String, Integer> request) {
-        Integer commentId = request.get("commentId");
+    public ResponseEntity<Map<String, Object>> deleteComment(@RequestParam("commentId") Integer commentId) {
         boolean isSuccess = commentService.deleteComment(commentId);
 
         Map<String, Object> response = new HashMap<>();
