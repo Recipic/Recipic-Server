@@ -42,7 +42,7 @@ public class RecipeController {
         response.put("isSuccess", isSuccess);
         return ResponseEntity.ok(response);
     }
-    
+
     @PutMapping("/update")
     public ResponseEntity<Map<String, Object>> updateRecipe(
             @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,

@@ -6,7 +6,7 @@ import java.util.Map;
 public class IngredientDTO {
 
     private final Integer ingredientId;  // 재료 ID
-    private final String name;  // 재료명
+    private final String ingredientName;  // 재료명
     private final Long quantity;  // 양
     private final String unit;  // 단위
     private final Integer cost;  // 비용
@@ -14,7 +14,7 @@ public class IngredientDTO {
 
     public IngredientDTO(Builder builder) {
         this.ingredientId = builder.ingredientId;
-        this.name = builder.name;
+        this.ingredientName = builder.ingredientName;
         this.quantity = builder.quantity;
         this.unit = builder.unit;
         this.cost = builder.cost;
@@ -23,7 +23,7 @@ public class IngredientDTO {
 
     public static class Builder {
         private Integer ingredientId;
-        private String name;
+        private String ingredientName;
         private Long quantity;
         private String unit;
         private Integer cost;
@@ -36,8 +36,8 @@ public class IngredientDTO {
             return this;
         }
 
-        public Builder name(String name) {
-            this.name = name;
+        public Builder ingredientName(String ingredientName) { // 변경된 부분
+            this.ingredientName = ingredientName;
             return this;
         }
 
@@ -70,8 +70,8 @@ public class IngredientDTO {
         return ingredientId;
     }
 
-    public String getName() {
-        return name;
+    public String getIngredientName() {
+        return ingredientName;
     }
 
     public Long getQuantity() {
@@ -93,7 +93,7 @@ public class IngredientDTO {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("ingredientId", ingredientId);
-        map.put("name", name);
+        map.put("ingredientName", ingredientName);
         map.put("quantity", quantity);
         map.put("unit", unit);
         map.put("calorie", calorie);
