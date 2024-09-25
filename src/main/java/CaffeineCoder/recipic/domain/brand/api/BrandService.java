@@ -70,7 +70,7 @@ public class BrandService {
                 .map(baseIngredient -> {
                     Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
                     baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
-                    baseIngredientMap.put("name", baseIngredient.getIngredientName());
+                    baseIngredientMap.put("ingredientName", baseIngredient.getIngredientName());
                     return baseIngredientMap;
                 })
                 .collect(Collectors.toList());
@@ -79,14 +79,13 @@ public class BrandService {
     // BaseIngredient에 매핑된 Ingredient 조회
     public List<Map<String, Object>> getIngredientsByBaseIngredientId(Integer baseIngredientId) {
         BaseIngredient baseIngredient = baseIngredientRepository.findById(baseIngredientId)
-                .orElseThrow(() -> new RuntimeException("BaseIngredient not found with ID: " + baseIngredientId));
+                .orElseThrow(() -> new RuntimeException("BaseIngredient not found"));
 
-        // BaseIngredient에 매핑된 Ingredient들을 가져와 Map으로 변환
         return baseIngredient.getIngredients().stream()
                 .map(ingredient -> {
                     Map<String, Object> ingredientMap = new LinkedHashMap<>();
                     ingredientMap.put("ingredientId", ingredient.getIngredientId());
-                    ingredientMap.put("name", ingredient.getIngredientName());
+                    ingredientMap.put("ingredientName", ingredient.getIngredientName());
                     ingredientMap.put("quantity", ingredient.getQuantity());
                     ingredientMap.put("unit", ingredient.getUnit());
                     ingredientMap.put("cost", ingredient.getCost());

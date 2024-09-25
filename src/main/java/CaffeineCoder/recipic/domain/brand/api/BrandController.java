@@ -33,18 +33,16 @@ public class BrandController {
         return ResponseEntity.ok(response);
     }
 
-
     // Ingredient 추가 API (BaseIngredient에 연결)
     @PostMapping("/add-ingredient")
     public ResponseEntity<Map<String, Object>> addIngredient(@RequestBody Map<String, Object> request) {
-        Integer baseIngredientId = (Integer) request.get("baseIngredientId");  // BaseIngredient의 ID를 받음
+        Integer baseIngredientId = (Integer) request.get("baseIngredientId");
         String ingredientName = (String) request.get("ingredientName");
         Long quantity = Long.parseLong(request.get("quantity").toString());
         String unit = (String) request.get("unit");
         Integer cost = (Integer) request.get("cost");
         Double calorie = Double.parseDouble(request.get("calorie").toString());
 
-        // baseIngredientId를 추가해서 호출
         boolean success = brandService.addIngredient(baseIngredientId, ingredientName, quantity, unit, cost, calorie);
 
         Map<String, Object> response = new LinkedHashMap<>();
