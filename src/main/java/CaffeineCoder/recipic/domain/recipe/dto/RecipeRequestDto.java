@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,30 +12,20 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class RecipeRequestDto {
-
     private Integer recipeId;
-    private Integer brandId;
     private String title;
-    private List<SelectedRecipeDto> selectedRecipes;
     private String description;
     private Boolean isCelebrity;
-    private String thumbnailUrl;
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
+    private String brandName;
+    private Integer baseIngredientId;
+    private List<SelectedIngredientDto> selectedIngredients; // 선택된 재료
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class SelectedRecipeDto {
-        private String ingredientName;
+    public static class SelectedIngredientDto {
+        private Integer ingredientId;
         private Integer count;
-        private Boolean isBaseIngredient;
-
-        public Boolean isBaseIngredient() {
-            return isBaseIngredient;
-        }
     }
 }

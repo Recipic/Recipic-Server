@@ -7,7 +7,9 @@ import CaffeineCoder.recipic.global.response.ApiResponse;
 import CaffeineCoder.recipic.global.util.ApiUtils;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,14 +29,18 @@ public class RecipeController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerRecipe(
             @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
-            @RequestPart(value="thumbnailImage") MultipartFile thumbnailImage
-    ) {
+            @RequestPart(value="thumbnailImage", required = false) MultipartFile thumbnailImage) {
         recipeService.registerRecipe(recipeRequestDto, thumbnailImage);
-
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
 
-    @DeleteMapping
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<String> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body("Content-Type is not supported. Please use multipart/form-data.");
+    }
+
+    @DeleteMapping("/remove")
     public ResponseEntity<Map<String, Object>> deleteRecipe(@RequestParam("recipeId") Integer recipeId) {
         boolean isSuccess = recipeService.deleteRecipe(recipeId);
 
