@@ -53,7 +53,7 @@ public class UserService {
             uuid = user.getProfileImageUrl();
         }
 
-        user.update(userRequestDto.getNickName(), uuid, userRequestDto.getDescription());
+        user.update(userRequestDto.getNickName(), "https://storage.googleapis.com/recipick-image-bucket/"+uuid, userRequestDto.getDescription());
 
         return UserResponseDto.of(user);
     }
