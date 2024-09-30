@@ -34,7 +34,7 @@ public class UserApi {
         return ApiUtils.success(userService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
     }
 
-    @PostMapping("/user/update")
+    @PatchMapping("/user/update")
     public ApiResponse<?> findMemberInfoByEmail(
             @RequestPart(value="user") UserRequestDto userRequestDto,
             @RequestPart(value="profileImage") MultipartFile profileImage
