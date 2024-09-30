@@ -1,8 +1,13 @@
 package CaffeineCoder.recipic.domain.brand.dto;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Getter
+@Builder // @Builder 어노테이션 추가
 public class IngredientDTO {
 
     private final Integer ingredientId;  // 재료 ID
@@ -11,84 +16,7 @@ public class IngredientDTO {
     private final String unit;  // 단위
     private final Integer cost;  // 비용
     private final Double calorie;  // 칼로리
-
-    public IngredientDTO(Builder builder) {
-        this.ingredientId = builder.ingredientId;
-        this.ingredientName = builder.ingredientName;
-        this.quantity = builder.quantity;
-        this.unit = builder.unit;
-        this.cost = builder.cost;
-        this.calorie = builder.calorie;
-    }
-
-    public static class Builder {
-        private Integer ingredientId;
-        private String ingredientName;
-        private Long quantity;
-        private String unit;
-        private Integer cost;
-        private Double calorie;
-
-        public Builder() {}
-
-        public Builder ingredientId(Integer ingredientId) {
-            this.ingredientId = ingredientId;
-            return this;
-        }
-
-        public Builder ingredientName(String ingredientName) { // 변경된 부분
-            this.ingredientName = ingredientName;
-            return this;
-        }
-
-        public Builder quantity(Long quantity) {
-            this.quantity = quantity;
-            return this;
-        }
-
-        public Builder unit(String unit) {
-            this.unit = unit;
-            return this;
-        }
-
-        public Builder cost(Integer cost) {
-            this.cost = cost;
-            return this;
-        }
-
-        public Builder calorie(Double calorie) {
-            this.calorie = calorie;
-            return this;
-        }
-
-        public IngredientDTO build() {
-            return new IngredientDTO(this);
-        }
-    }
-
-    public Integer getIngredientId() {
-        return ingredientId;
-    }
-
-    public String getIngredientName() {
-        return ingredientName;
-    }
-
-    public Long getQuantity() {
-        return quantity;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public Integer getCost() {
-        return cost;
-    }
-
-    public Double getCalorie() {
-        return calorie;
-    }
+    private final BaseIngredientDTO baseIngredient;  // BaseIngredientDTO 추가
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();

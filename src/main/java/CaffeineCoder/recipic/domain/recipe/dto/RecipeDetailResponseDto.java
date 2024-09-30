@@ -21,24 +21,30 @@ public class RecipeDetailResponseDto {
     String status;
     Boolean isScrapped;
     int scrapCount;
-    List<IncludeIngredientDto> IncludeIngredients;
-
-
+    List<IncludeIngredientDto> includeIngredients;
+    String baseIngredientName;
 
     @Builder
-    public RecipeDetailResponseDto(Integer recipeId, String userNickName, String userProfileImageUrl, String brandName, String title, String description, String thunbnailUrl, String isCelebrity, String createdAt, String status,boolean isScrapped, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
+    public RecipeDetailResponseDto(
+            Integer recipeId, String userNickName, String userProfileImageUrl,
+            String brandName, String title, String description, String thunbnailUrl,
+            String isCelebrity, String createdAt, String status, boolean isScrapped,
+            int scrapCount, List<IncludeIngredientDto> includeIngredients,
+            String baseIngredientName // 빌더에 필드 추가
+    ) {
         this.recipeId = recipeId;
         this.userNickName = userNickName;
         this.userProfileImageUrl = userProfileImageUrl;
         this.brandName = brandName;
         this.title = title;
         this.description = description;
-        this.thunbnailUrl = thunbnailUrl;
+        this.thunbnailUrl = "https://storage.googleapis.com/recipick-image-bucket/" + thunbnailUrl;
         this.isCelebrity = isCelebrity;
         this.createdAt = createdAt;
         this.status = status;
         this.isScrapped = isScrapped;
         this.scrapCount = scrapCount;
-        this.IncludeIngredients = IncludeIngredients;
+        this.includeIngredients = includeIngredients;
+        this.baseIngredientName = baseIngredientName;
     }
 }

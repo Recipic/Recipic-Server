@@ -4,6 +4,8 @@ import CaffeineCoder.recipic.domain.brand.api.BrandService;
 import CaffeineCoder.recipic.domain.brand.domain.BaseIngredient;
 import CaffeineCoder.recipic.domain.brand.domain.Brand;
 import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
+import CaffeineCoder.recipic.domain.brand.dto.BaseIngredientDTO;
+import CaffeineCoder.recipic.domain.brand.dto.IngredientDTO;
 import CaffeineCoder.recipic.domain.brand.repository.BaseIngredientRepository;
 import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
@@ -22,7 +24,6 @@ import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.global.image.ImageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -142,22 +143,31 @@ public class RecipeService {
 
         int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
-        List<RecipeIngredient> ingredients = recipeIngredientRepository.findByRecipeId(recipeId);
-        List<IncludeIngredientDto> includeIngredients = ingredients.stream()
+        // 레시피 재료 목록 가져오기 및 DTO 변환
+        List<IncludeIngredientDto> includeIngredients = recipeIngredientRepository.findByRecipeId(recipeId).stream()
                 .map(ingredient -> {
-                    if (ingredient.getIngredient() != null) {
-                        Ingredient foundIngredient = ingredient.getIngredient();
-                        return IncludeIngredientDto.builder()
-                                .ingredient(foundIngredient)
-                                .count(ingredient.getCount())
-                                .build();
-                    } else {
-                        BaseIngredient foundBaseIngredient = ingredient.getBaseIngredient();
-                        return IncludeIngredientDto.builder()
-                                .baseIngredient(foundBaseIngredient)
-                                .count(ingredient.getCount())
-                                .build();
-                    }
+                    // BaseIngredientDTO 생성
+                    BaseIngredientDTO baseIngredientDTO = BaseIngredientDTO.builder()
+                            .baseIngredientId(ingredient.getBaseIngredient().getBaseIngredientId())
+                            .ingredientName(ingredient.getBaseIngredient().getIngredientName())
+                            .build();
+
+                    // IngredientDTO 생성
+                    IngredientDTO ingredientDTO = IngredientDTO.builder()
+                            .ingredientId(ingredient.getIngredient().getIngredientId())
+                            .ingredientName(ingredient.getIngredient().getIngredientName())
+                            .quantity(ingredient.getIngredient().getQuantity())
+                            .unit(ingredient.getIngredient().getUnit())
+                            .cost(ingredient.getIngredient().getCost())
+                            .calorie(ingredient.getIngredient().getCalorie())
+                            .baseIngredient(baseIngredientDTO)  // BaseIngredientDTO 포함
+                            .build();
+
+                    // IncludeIngredientDto 생성
+                    return IncludeIngredientDto.builder()
+                            .ingredient(ingredientDTO)
+                            .count(ingredient.getCount())
+                            .build();
                 })
                 .collect(Collectors.toList());
 
@@ -179,7 +189,7 @@ public class RecipeService {
                 .status(recipe.getStatus().toString())
                 .isScrapped(isScrapped)
                 .scrapCount(scrapCount)
-                .IncludeIngredients(includeIngredients)
+                .includeIngredients(includeIngredients)
                 .build();
     }
 
