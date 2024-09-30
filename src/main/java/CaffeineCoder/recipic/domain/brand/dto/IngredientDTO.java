@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.brand.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,7 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Getter
-@Builder // @Builder 어노테이션 추가
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class IngredientDTO {
 
     private final Integer ingredientId;  // 재료 ID
@@ -26,6 +28,11 @@ public class IngredientDTO {
         map.put("unit", unit);
         map.put("calorie", calorie);
         map.put("cost", cost);
+
+        if (baseIngredient != null) {
+            map.put("baseIngredient", baseIngredient);
+        }
+
         return map;
     }
 }

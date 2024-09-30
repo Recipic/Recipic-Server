@@ -59,7 +59,7 @@ public class RecipeService {
 
     @Transactional
     public void registerRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
-        // 현재 사용자의 ID 가져오기 (SecurityUtil을 사용한 예시)
+        // 현재 사용자의 ID 가져오기
         Long userId = SecurityUtil.getCurrentMemberId();
 
         // 브랜드 정보 가져오기
@@ -143,15 +143,15 @@ public class RecipeService {
 
         int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
+        // BaseIngredient 설정
+        String baseIngredientName = recipeIngredientRepository.findByRecipeId(recipeId).stream()
+                .findFirst()
+                .map(ingredient -> ingredient.getBaseIngredient().getIngredientName())
+                .orElse("Unknown Base Ingredient");
+
         // 레시피 재료 목록 가져오기 및 DTO 변환
         List<IncludeIngredientDto> includeIngredients = recipeIngredientRepository.findByRecipeId(recipeId).stream()
                 .map(ingredient -> {
-                    // BaseIngredientDTO 생성
-                    BaseIngredientDTO baseIngredientDTO = BaseIngredientDTO.builder()
-                            .baseIngredientId(ingredient.getBaseIngredient().getBaseIngredientId())
-                            .ingredientName(ingredient.getBaseIngredient().getIngredientName())
-                            .build();
-
                     // IngredientDTO 생성
                     IngredientDTO ingredientDTO = IngredientDTO.builder()
                             .ingredientId(ingredient.getIngredient().getIngredientId())
@@ -160,7 +160,6 @@ public class RecipeService {
                             .unit(ingredient.getIngredient().getUnit())
                             .cost(ingredient.getIngredient().getCost())
                             .calorie(ingredient.getIngredient().getCalorie())
-                            .baseIngredient(baseIngredientDTO)  // BaseIngredientDTO 포함
                             .build();
 
                     // IncludeIngredientDto 생성
@@ -174,13 +173,11 @@ public class RecipeService {
         User user = userRepository.findById(recipe.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String brandName = recipe.getBrandName();
-
         return RecipeDetailResponseDto.builder()
                 .recipeId(recipe.getRecipeId())
                 .userNickName(user.getNickName())
                 .userProfileImageUrl(user.getProfileImageUrl())
-                .brandName(brandName)
+                .brandName(recipe.getBrandName())
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
                 .thunbnailUrl(recipe.getImageUrl())
@@ -190,6 +187,7 @@ public class RecipeService {
                 .isScrapped(isScrapped)
                 .scrapCount(scrapCount)
                 .includeIngredients(includeIngredients)
+                .baseIngredient(baseIngredientName)
                 .build();
     }
 
@@ -272,14 +270,14 @@ public class RecipeService {
                     RecipeIngredientId recipeIngredientId = new RecipeIngredientId(
                             recipe.getRecipeId(),
                             ingredient.getIngredientId(),
-                            baseIngredient.getBaseIngredientId() // BaseIngredient 포함
+                            baseIngredient.getBaseIngredientId()
                     );
 
                     return RecipeIngredient.builder()
                             .id(recipeIngredientId)
                             .recipe(recipe)
                             .ingredient(ingredient)
-                            .baseIngredient(baseIngredient) // baseIngredient를 추가
+                            .baseIngredient(baseIngredient)
                             .count(selectedIngredient.getCount())
                             .build();
                 })
