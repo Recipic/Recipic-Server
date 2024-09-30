@@ -13,13 +13,13 @@ import java.util.Objects;
 @NoArgsConstructor
 public class RecipeIngredientId implements Serializable {
 
-    @Column(name = "recipe_id")
+    @Column(name = "recipe_id", nullable = false)
     private Integer recipeId;
 
-    @Column(name = "ingredient_id", nullable = true)
+    @Column(name = "ingredient_id", nullable = false)
     private Integer ingredientId;
 
-    @Column(name = "baseingredient_id", nullable = true)
+    @Column(name = "baseingredient_id", nullable = false)
     private Integer baseIngredientId;
 
     public RecipeIngredientId(Integer recipeId, Integer ingredientId, Integer baseIngredientId) {
