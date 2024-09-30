@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/recipe/rank/**").permitAll()
                                 .requestMatchers("/api/recipe/detail/**").permitAll()
                                 .requestMatchers("/api/recipe/list/**").permitAll()
+                                .requestMatchers("/api/announcement/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 관련 경로 허용
                                 .anyRequest().authenticated()
                 )

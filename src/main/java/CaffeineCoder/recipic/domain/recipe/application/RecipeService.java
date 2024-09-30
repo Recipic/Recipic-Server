@@ -228,7 +228,7 @@ public class RecipeService {
         String uuid = null;
         try {
             if (!thumbnailImage.isEmpty()) {
-                uuid = imageService.uploadImage(thumbnailImage);
+                uuid = "https://storage.googleapis.com/recipick-image-bucket/"+ imageService.uploadImage(thumbnailImage);
             }
         } catch (IOException e) {
             e.printStackTrace();
