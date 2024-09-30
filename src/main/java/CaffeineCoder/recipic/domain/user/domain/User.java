@@ -2,6 +2,8 @@ package CaffeineCoder.recipic.domain.user.domain;
 
 import CaffeineCoder.recipic.domain.authentication.domain.oauth.OAuthProvider;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -26,11 +30,14 @@ public class User {
     @Column(name = "o_auth_provider")
     private OAuthProvider oAuthProvider;
 
-    @Builder
-    public User(String email, String nickName,String profileImageUrl, OAuthProvider oAuthProvider) {
-        this.email = email;
+    @Column(name = "description", nullable = true)
+    @Size(max = 100)
+    private String description;
+
+    public void update(String nickName, String profileImageUrl, String description) {
         this.nickName = nickName;
         this.profileImageUrl = profileImageUrl;
-        this.oAuthProvider = oAuthProvider;
+        this.description = description;
     }
+
 }

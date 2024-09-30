@@ -20,6 +20,7 @@ import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.user.application.UserService;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
+import CaffeineCoder.recipic.global.image.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,8 +55,6 @@ public class RecipeService {
     private final UserService userService;
     private final ImageService imageService;
 
-    @Value("${spring.cloud.gcp.storage.bucket}")
-    private String bucketName;
 
     @Transactional
     public void registerRecipe(RecipeRequestDto recipeRequestDto, MultipartFile thumbnailImage) {
