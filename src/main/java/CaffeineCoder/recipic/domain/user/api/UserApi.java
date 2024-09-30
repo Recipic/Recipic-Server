@@ -1,6 +1,7 @@
 package CaffeineCoder.recipic.domain.user.api;
 
 import CaffeineCoder.recipic.domain.user.application.UserService;
+import CaffeineCoder.recipic.domain.user.dto.UserRequestDto;
 import CaffeineCoder.recipic.domain.user.dto.UserResponseDto;
 import CaffeineCoder.recipic.domain.authentication.domain.AuthTokensGenerator;
 import CaffeineCoder.recipic.domain.user.domain.User;
@@ -11,6 +12,7 @@ import CaffeineCoder.recipic.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,4 +33,13 @@ public class UserApi {
     public ApiResponse<UserResponseDto> findMemberInfoById() {
         return ApiUtils.success(userService.findMemberInfoById(SecurityUtil.getCurrentMemberId()));
     }
+
+    @PostMapping("/user/update")
+    public ApiResponse<?> findMemberInfoByEmail(
+            @RequestPart(value="user") UserRequestDto userRequestDto,
+            @RequestPart(value="profileImage") MultipartFile profileImage
+    ) {
+        return ApiUtils.success(userService.updateUser(userRequestDto,profileImage));
+    }
+
 }

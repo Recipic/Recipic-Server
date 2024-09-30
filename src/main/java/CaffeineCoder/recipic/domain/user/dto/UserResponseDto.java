@@ -13,9 +13,18 @@ public class UserResponseDto {
     private String nickName;
     private String profileImageUrl;
     private String email;
+    private String description;
 
     public static UserResponseDto of(User user) {
-        return new UserResponseDto(user.getUserId(), user.getNickName(), user.getProfileImageUrl(), user.getEmail());
+        return new UserResponseDto(
+                user.getUserId(),
+                user.getNickName(),
+                "https://storage.googleapis.com/recipick-image-bucket/"+user.getProfileImageUrl(),
+                user.getEmail(),
+                user.getDescription());
     }
+
+
+
 }
 
