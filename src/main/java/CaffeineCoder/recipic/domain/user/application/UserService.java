@@ -53,7 +53,10 @@ public class UserService {
             uuid = user.getProfileImageUrl();
         }
 
-        user.update(userRequestDto.getNickName(), uuid, userRequestDto.getDescription());
+        String nickName = userRequestDto.getNickName() != null ? userRequestDto.getNickName() : user.getNickName();
+        String description = userRequestDto.getDescription() != null ? userRequestDto.getDescription() : user.getDescription();
+
+        user.update(nickName, uuid, description);
 
         return UserResponseDto.of(user);
     }

@@ -17,5 +17,9 @@ public class UserRequestDto {
         return new UserRequestDto(user.getNickName(), user.getDescription());
     }
 
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
 
 }
