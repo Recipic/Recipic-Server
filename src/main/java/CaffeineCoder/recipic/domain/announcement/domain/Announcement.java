@@ -1,7 +1,6 @@
 package CaffeineCoder.recipic.domain.announcement.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +10,6 @@ import java.sql.Timestamp;
 @Getter
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Announcement {
 
     @Id
@@ -29,7 +26,16 @@ public class Announcement {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private Timestamp createdAt;
+
+    @Builder
+    public Announcement(Long announcementId, String title, String thumbnailUrl, String description, Timestamp createdAt) {
+        this.announcementId = announcementId;
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.description = description;
+        this.createdAt = createdAt != null ? createdAt : new Timestamp(System.currentTimeMillis());;
+    }
 
 }
