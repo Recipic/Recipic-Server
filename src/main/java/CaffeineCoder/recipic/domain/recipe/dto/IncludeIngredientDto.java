@@ -2,19 +2,20 @@ package CaffeineCoder.recipic.domain.recipe.dto;
 
 import CaffeineCoder.recipic.domain.brand.domain.BaseIngredient;
 import CaffeineCoder.recipic.domain.brand.domain.Ingredient;
+import CaffeineCoder.recipic.domain.brand.dto.IngredientDTO;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class IncludeIngredientDto {
-    private Ingredient ingredient;
-    private BaseIngredient baseIngredient;
+    private IngredientDTO ingredient;
     private Integer count;
 
     @Builder
-    public IncludeIngredientDto(Ingredient ingredient, BaseIngredient baseIngredient, Integer count) {
+    public IncludeIngredientDto(IngredientDTO ingredient, Integer count) {
         this.ingredient = ingredient;
-        this.baseIngredient = baseIngredient;
         this.count = count;
     }
+
 }
+

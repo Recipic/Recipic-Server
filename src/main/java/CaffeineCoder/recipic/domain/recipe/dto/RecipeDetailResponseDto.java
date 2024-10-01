@@ -9,24 +9,29 @@ import java.util.List;
 
 @Getter
 public class RecipeDetailResponseDto {
-    Integer recipeId;
-    String userNickName;
-    String userProfileImageUrl;
-    String brandName;
-    String title;
-    String description;
-    String thunbnailUrl;
-    String isCelebrity;
-    String createdAt;
-    String status;
-    Boolean isScrapped;
-    int scrapCount;
-    List<IncludeIngredientDto> IncludeIngredients;
-
-
+    private Integer recipeId;
+    private String userNickName;
+    private String userProfileImageUrl;
+    private String brandName;
+    private String title;
+    private String description;
+    private String thunbnailUrl;
+    private String isCelebrity;
+    private String createdAt;
+    private String status;
+    private Boolean isScrapped;
+    private int scrapCount;
+    private String baseIngredient;
+    private List<IncludeIngredientDto> includeIngredients;
 
     @Builder
-    public RecipeDetailResponseDto(Integer recipeId, String userNickName, String userProfileImageUrl, String brandName, String title, String description, String thunbnailUrl, String isCelebrity, String createdAt, String status,boolean isScrapped, int scrapCount, List<IncludeIngredientDto> IncludeIngredients) {
+    public RecipeDetailResponseDto(
+            Integer recipeId, String userNickName, String userProfileImageUrl,
+            String brandName, String title, String description, String thunbnailUrl,
+            String isCelebrity, String createdAt, String status, boolean isScrapped,
+            int scrapCount, List<IncludeIngredientDto> includeIngredients,
+            String baseIngredient
+    ) {
         this.recipeId = recipeId;
         this.userNickName = userNickName;
         this.userProfileImageUrl = userProfileImageUrl;
@@ -39,6 +44,7 @@ public class RecipeDetailResponseDto {
         this.status = status;
         this.isScrapped = isScrapped;
         this.scrapCount = scrapCount;
-        this.IncludeIngredients = IncludeIngredients;
+        this.includeIngredients = includeIngredients;
+        this.baseIngredient = baseIngredient;
     }
 }
