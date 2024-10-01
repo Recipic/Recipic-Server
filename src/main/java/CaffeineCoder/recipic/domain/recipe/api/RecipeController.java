@@ -5,6 +5,8 @@ import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
 import CaffeineCoder.recipic.global.response.ApiResponse;
 import CaffeineCoder.recipic.global.util.ApiUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,10 +28,15 @@ public class RecipeController {
         this.recipeService = recipeService;
     }
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = { "multipart/form-data" })
     public ResponseEntity<Map<String, Object>> registerRecipe(
-            @RequestPart(value="recipe") RecipeRequestDto recipeRequestDto,
-            @RequestPart(value="thumbnailImage", required = false) MultipartFile thumbnailImage) {
+            @RequestPart(value="recipe") String recipeJson,
+            @RequestPart(value="thumbnailImage", required = false) MultipartFile thumbnailImage) throws JsonProcessingException {
+
+        // 문자열로 받은 JSON 데이터를 ObjectMapper를 이용해 RecipeRequestDto로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
+        RecipeRequestDto recipeRequestDto = objectMapper.readValue(recipeJson, RecipeRequestDto.class);
+
         recipeService.registerRecipe(recipeRequestDto, thumbnailImage);
         return ResponseEntity.ok(Map.of("isSuccess", true));
     }
