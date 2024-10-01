@@ -40,4 +40,8 @@ public class User {
         this.description = description;
     }
 
+    public void profileUpdate(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
 }
