@@ -1,7 +1,12 @@
 package CaffeineCoder.recipic.domain.scrap.api;
 
+import CaffeineCoder.recipic.domain.notification.application.NotificationService;
+import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
+import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.scrap.dao.ScrapRepository;
 import CaffeineCoder.recipic.domain.scrap.domain.Scrap;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,10 +21,12 @@ import java.util.Optional;
 public class ScrapService {
 
     private final ScrapRepository scrapRepository;
+    private final NotificationService notificationService;
+    private final RecipeRepository recipeRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public boolean toggleScrap(Integer recipeId) {
-        // 현재 인증된 사용자의 ID
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(authentication.getName());
 
@@ -27,19 +34,31 @@ public class ScrapService {
         Optional<Scrap> existingScrap = scrapRepository.findByUserIdAndRecipeId(userId, recipeId);
 
         if (existingScrap.isPresent()) {
-            // 이미 스크랩했다면 스크랩을 취소
+            // 이미 스크랩한 경우 스크랩 취소
             scrapRepository.deleteByUserIdAndRecipeId(userId, recipeId);
-            return false; // 스크랩 취소 false 반환
+            return false;
         } else {
-            // 스크랩하지 않았다면 새 스크랩을 추가
+            // 새로운 스크랩을 추가
             Scrap scrap = Scrap.builder()
                     .userId(userId)
                     .recipeId(recipeId)
                     .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
-
             scrapRepository.save(scrap);
-            return true; // 스크랩 추가 true 반환
+
+            // 스크랩 알림 생성
+            Recipe recipe = recipeRepository.findById(recipeId)
+                    .orElseThrow(() -> new RuntimeException("Recipe not found"));
+            User recipeOwner = userRepository.findById(recipe.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String description = "회원님의 게시글이 스크랩되었습니다.";
+            notificationService.createNotification(
+                    "게시글 스크랩 알림",
+                    description,
+                    recipeId.longValue(),
+                    recipeOwner.getUserId()
+            );
+            return true;
         }
     }
 
