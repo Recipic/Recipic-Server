@@ -33,5 +33,9 @@ public class BaseIngredient {
         this.ingredientName = ingredientName;
         this.brand = brand;
     }
+    public String getBaseIngredientName() {
+        return this.ingredientName;
+    }
+
 }
 
