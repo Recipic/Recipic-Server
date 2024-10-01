@@ -16,7 +16,7 @@ public class RecipeDetailResponseDto {
     private String title;
     private String description;
     private String thunbnailUrl;
-    private String isCelebrity;
+    private Boolean isCelebrity;
     private String createdAt;
     private String status;
     private Boolean isScrapped;
@@ -28,7 +28,7 @@ public class RecipeDetailResponseDto {
     public RecipeDetailResponseDto(
             Integer recipeId, String userNickName, String userProfileImageUrl,
             String brandName, String title, String description, String thunbnailUrl,
-            String isCelebrity, String createdAt, String status, boolean isScrapped,
+            Boolean isCelebrity, String createdAt, String status, boolean isScrapped,
             int scrapCount, List<IncludeIngredientDto> includeIngredients,
             String baseIngredient
     ) {

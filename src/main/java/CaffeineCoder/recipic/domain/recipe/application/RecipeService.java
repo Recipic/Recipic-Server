@@ -181,7 +181,7 @@ public class RecipeService {
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
                 .thunbnailUrl(recipe.getImageUrl())
-                .isCelebrity(recipe.getIsCelebrity().toString())
+                .isCelebrity(recipe.getIsCelebrity())
                 .createdAt(recipe.getCreatedAt().toString())
                 .status(recipe.getStatus().toString())
                 .isScrapped(isScrapped)
