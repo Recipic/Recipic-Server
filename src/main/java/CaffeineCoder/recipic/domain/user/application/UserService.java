@@ -42,7 +42,7 @@ public class UserService {
 
         String uuid = null;
         try {
-            if (!profileImage.isEmpty()) {
+            if (profileImage != null && !profileImage.isEmpty()) {
                 uuid = "https://storage.googleapis.com/recipick-image-bucket/"+imageService.uploadImage(profileImage);
             }
         } catch (IOException e) {
@@ -53,6 +53,10 @@ public class UserService {
             uuid = user.getProfileImageUrl();
         }
 
+        if(userRequestDto == null){
+            user.profileUpdate(uuid);
+            return UserResponseDto.of(user);
+        }
         String nickName = userRequestDto.getNickName() != null ? userRequestDto.getNickName() : user.getNickName();
         String description = userRequestDto.getDescription() != null ? userRequestDto.getDescription() : user.getDescription();
 
