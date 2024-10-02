@@ -5,7 +5,7 @@ import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.AccessTokenDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenRequestDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenResponseDto;
-import CaffeineCoder.recipic.domain.jwtSecurity.service.AuthService;
+import CaffeineCoder.recipic.domain.jwtSecurity.service.JwtService;
 import CaffeineCoder.recipic.global.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/jwt")
 @RequiredArgsConstructor
 public class JwtController {
-    private final AuthService authService;
+    private final JwtService jwtService;
 
 
     @PostMapping("/reissue")
@@ -45,7 +45,7 @@ public class JwtController {
                 .refreshToken(refreshToken)
                 .build();
 
-        TokenDto tokenDto = authService.reissue(tokenRequestDto);
+        TokenDto tokenDto = jwtService.reissue(tokenRequestDto);
 
         TokenResponseDto tokenResponseDto = JwtUtils.setJwtResponse(response, tokenDto);
 
