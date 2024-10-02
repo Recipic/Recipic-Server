@@ -72,9 +72,6 @@ public class CommentService {
 
                 String description = "회원님의 게시글에 새로운 댓글이 달렸습니다.";
 
-                // 로깅 추가
-                System.out.println("알림 생성: " + description + ", 레시피 ID: " + recipe.getRecipeId() + ", 작성자 ID: " + recipeOwner.getUserId());
-
                 notificationService.createNotification(
                         "게시글 댓글 알림",
                         description,

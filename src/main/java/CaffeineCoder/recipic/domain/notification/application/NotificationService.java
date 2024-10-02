@@ -37,8 +37,6 @@ public class NotificationService {
                     .user(user) // 알림을 받을 사용자
                     .build();
 
-            System.out.println("알림 저장: 제목=" + title + ", 설명=" + description + ", 사용자 ID=" + userId + ", 레시피 ID=" + recipeId);
-
             // 알림 저장
             notificationRepository.save(notification);
         } catch (Exception e) {
