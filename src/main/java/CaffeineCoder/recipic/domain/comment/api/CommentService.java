@@ -8,6 +8,7 @@ import CaffeineCoder.recipic.domain.comment.dto.CommentDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentRequestDto;
 import CaffeineCoder.recipic.domain.comment.dto.CommentResponseDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
+import CaffeineCoder.recipic.domain.notification.application.NotificationService;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
@@ -33,31 +34,61 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
-    private final UserRepository userRepository;
     private final RecipeRepository recipeRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
+    @Transactional
     public boolean createComment(CommentRequestDto commentRequestDto) {
-        // JWT 토큰에서 userId 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
+        try {
+            // JWT 토큰에서 userId 추출
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long userId = Long.parseLong(authentication.getName());
 
-        // 유저와 레시피가 존재하는지 확인
-        if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("Invalid userId");
+            // 유저와 레시피가 존재하는지 확인
+            if (!userRepository.existsById(userId)) {
+                throw new IllegalArgumentException("Invalid userId");
+            }
+            if (!recipeRepository.existsById(commentRequestDto.getRecipeId())) {
+                throw new IllegalArgumentException("Invalid recipeId");
+            }
+
+            // 댓글 생성 및 저장
+            Comment comment = Comment.builder()
+                    .userId(userId)
+                    .recipeId(commentRequestDto.getRecipeId())
+                    .content(commentRequestDto.getComment())
+                    .createdAt(new Timestamp(System.currentTimeMillis()))
+                    .build();
+            commentRepository.save(comment);
+
+            // 댓글 작성자와 레시피 작성자가 다를 경우 알림 생성
+            Recipe recipe = recipeRepository.findById(commentRequestDto.getRecipeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+
+            if (!recipe.getUserId().equals(userId)) {
+                User recipeOwner = userRepository.findById(recipe.getUserId())
+                        .orElseThrow(() -> new RuntimeException("Recipe owner not found"));
+
+                String description = "회원님의 게시글에 새로운 댓글이 달렸습니다.";
+
+                notificationService.createNotification(
+                        "게시글 댓글 알림",
+                        description,
+                        recipe.getRecipeId().longValue(),
+                        recipeOwner.getUserId()
+                );
+            } else {
+                // 댓글 작성자가 레시피 작성자인 경우 로깅
+                System.out.println("레시피 작성자와 댓글 작성자가 동일하므로 알림이 생성되지 않습니다.");
+            }
+
+            return true;
+        } catch (Exception e) {
+            // 예외 발생 시 출력
+            e.printStackTrace();
+            return false;
         }
-        if (!recipeRepository.existsById(commentRequestDto.getRecipeId())) {
-            throw new IllegalArgumentException("Invalid recipeId");
-        }
-
-        // 댓글 생성 및 저장
-        Comment comment = Comment.builder()
-                .userId(userId)
-                .recipeId(commentRequestDto.getRecipeId())
-                .content(commentRequestDto.getComment())
-                .build();
-
-        commentRepository.save(comment);
-        return true;
     }
 
     @Transactional
@@ -74,27 +105,36 @@ public class CommentService {
             throw new IllegalArgumentException("You cannot like your own comment");
         }
 
-        // 이미 좋아요를 눌렀는지 확인
         Optional<CommentLike> existingLike = commentLikeRepository.findByUserIdAndCommentId(userId, commentId);
 
         if (existingLike.isPresent()) {
-            // 좋아요를 이미 눌렀다면 좋아요를 취소
+            // 좋아요를 이미 눌렀다면 좋아요 취소
             commentLikeRepository.delete(existingLike.get());
-            return false; // 좋아요 취소를 나타내기 위해 false 반환
+            return false;
         } else {
-            // 좋아요를 누르지 않았다면 좋아요를 추가
+            // 좋아요 추가
             CommentLike commentLike = CommentLike.builder()
                     .userId(userId)
                     .commentId(commentId)
                     .recipeId(comment.getRecipeId())
                     .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
-
             commentLikeRepository.save(commentLike);
-            return true; // 좋아요 추가를 나타내기 위해 true 반환
+
+            // 댓글 작성자에게 좋아요 알림 생성
+            User commentOwner = userRepository.findById(comment.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Comment owner not found"));
+
+            String description = "회원님의 댓글에 좋아요가 눌렸습니다.";
+            notificationService.createNotification(
+                    "댓글 좋아요 알림",
+                    description,
+                    comment.getRecipeId().longValue(),
+                    commentOwner.getUserId()
+            );
+            return true;
         }
     }
-
 
     // 댓글 삭제 메소드 추가
     @Transactional

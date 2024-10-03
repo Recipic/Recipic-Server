@@ -11,6 +11,7 @@ import CaffeineCoder.recipic.domain.brand.repository.BrandRepository;
 import CaffeineCoder.recipic.domain.brand.repository.IngredientRepository;
 import CaffeineCoder.recipic.domain.comment.dao.CommentRepository;
 import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
+import CaffeineCoder.recipic.domain.notification.application.NotificationService;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeIngredientRepository;
 import CaffeineCoder.recipic.domain.recipe.dao.RecipeRepository;
 import CaffeineCoder.recipic.domain.recipe.domain.Recipe;
@@ -55,6 +56,7 @@ public class RecipeService {
     private final ScrapService scrapService;
     private final UserService userService;
     private final ImageService imageService;
+    private final NotificationService notificationService;
 
 
     @Transactional
@@ -128,19 +130,40 @@ public class RecipeService {
     }
 
     public RecipeDetailResponseDto getRecipeDetail(Integer recipeId) {
+        // 레시피 ID로 레시피를 찾아서 없으면 예외 처리
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
+        // 현재 사용자가 이 레시피를 스크랩한 적이 있는지 확인
         boolean isScrapped = false;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
             Long currentMemberId = SecurityUtil.getCurrentMemberId();
             if (currentMemberId != null) {
+                // 스크랩 여부 확인
                 isScrapped = scrapService.isScrapped(currentMemberId, recipeId);
+
+                // 스크랩이 되어있으면 알림 생성
+                if (isScrapped) {
+                    // 레시피 작성자 정보를 가져와서 알림 생성
+                    User recipeOwner = userRepository.findById(recipe.getUserId())
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    String description = "회원님이 작성한 게시글이 스크랩되었습니다.";
+
+                    // 알림 생성, recipeId는 Long 타입으로 변환하여 전달
+                    notificationService.createNotification(
+                            "게시글 스크랩 알림",
+                            description,
+                            recipeId.longValue(),
+                            recipeOwner.getUserId()
+                    );
+                }
             }
         }
 
+        // 스크랩 수 가져오기
         int scrapCount = scrapRepository.countByRecipeId(recipeId);
 
         // BaseIngredient 설정
@@ -170,9 +193,11 @@ public class RecipeService {
                 })
                 .collect(Collectors.toList());
 
+        // 레시피 작성자 정보 가져오기
         User user = userRepository.findById(recipe.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // 레시피 상세 정보 DTO 반환
         return RecipeDetailResponseDto.builder()
                 .recipeId(recipe.getRecipeId())
                 .userNickName(user.getNickName())
