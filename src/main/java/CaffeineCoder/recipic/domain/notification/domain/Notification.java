@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -26,8 +28,13 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    private Long recipeId;
+    private Timestamp createdAt;
 
-    private Long recipeId;  // 게시글로 이동하기 위함
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 
     public void markAsRead() {
         this.isChecked = true;

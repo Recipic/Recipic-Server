@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +16,7 @@ public class NotificationResponseDto {
     private String description;
     private Long recipeId;
     private boolean isChecked;
+    private Timestamp createdAt;
 
     public static NotificationResponseDto of(Notification notification) {
         return new NotificationResponseDto(
@@ -21,7 +24,8 @@ public class NotificationResponseDto {
                 notification.getTitle(),
                 notification.getDescription(),
                 notification.getRecipeId(),
-                notification.isChecked()
+                notification.isChecked(),
+                notification.getCreatedAt()
         );
     }
 }
