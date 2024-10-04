@@ -49,18 +49,25 @@ public class ScrapService {
             // 스크랩 알림 생성
             Recipe recipe = recipeRepository.findById(recipeId)
                     .orElseThrow(() -> new RuntimeException("Recipe not found"));
-            User recipeOwner = userRepository.findById(recipe.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            String description = "회원님의 게시글이 스크랩되었습니다.";
-            notificationService.createNotification(
-                    "게시글 스크랩 알림",
-                    description,
-                    recipeId.longValue(),
-                    recipeOwner.getUserId()
-            );
+
+            // 스크랩하려는 게시글의 작성자와 현재 사용자가 같지 않을 때에만 알림 생성
+            if (!recipe.getUserId().equals(userId)) {
+                User recipeOwner = userRepository.findById(recipe.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                String description = "회원님의 게시글이 스크랩되었습니다.";
+                notificationService.createNotification(
+                        "게시글 스크랩 알림",
+                        description,
+                        recipeId.longValue(),
+                        recipeOwner.getUserId()
+                );
+            }
+
             return true;
         }
     }
+
 
     public boolean isScrapped(Long userId, Integer recipeId) {
         return scrapRepository.findByUserIdAndRecipeId(userId, recipeId).isPresent();

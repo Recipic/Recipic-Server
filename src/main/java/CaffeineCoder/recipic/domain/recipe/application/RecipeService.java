@@ -143,23 +143,6 @@ public class RecipeService {
             if (currentMemberId != null) {
                 // 스크랩 여부 확인
                 isScrapped = scrapService.isScrapped(currentMemberId, recipeId);
-
-                // 스크랩이 되어있으면 알림 생성
-                if (isScrapped) {
-                    // 레시피 작성자 정보를 가져와서 알림 생성
-                    User recipeOwner = userRepository.findById(recipe.getUserId())
-                            .orElseThrow(() -> new RuntimeException("User not found"));
-
-                    String description = "회원님이 작성한 게시글이 스크랩되었습니다.";
-
-                    // 알림 생성, recipeId는 Long 타입으로 변환하여 전달
-                    notificationService.createNotification(
-                            "게시글 스크랩 알림",
-                            description,
-                            recipeId.longValue(),
-                            recipeOwner.getUserId()
-                    );
-                }
             }
         }
 
