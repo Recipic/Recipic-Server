@@ -51,4 +51,9 @@ public class AdminInfoResponse implements OAuthInfoResponse {
     public String getProfileImageUrl() {
         return adminAccount.profile.profileImageURL;
     }
+
+    @Override
+    public String getAccessToken() {
+        return null;
+    }
 }
