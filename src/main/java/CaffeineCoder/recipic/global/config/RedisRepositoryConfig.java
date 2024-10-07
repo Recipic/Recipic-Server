@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.global.config;
 
+
 import CaffeineCoder.recipic.domain.jwtSecurity.entity.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -32,6 +33,7 @@ public class RedisRepositoryConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
+
 
     @Bean
     public RedisTemplate<String, RefreshToken> refreshTokenRedisTemplate() {

@@ -6,17 +6,13 @@ import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenRequestDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.entity.RefreshToken;
 import CaffeineCoder.recipic.domain.jwtSecurity.jwt.TokenProvider;
 import CaffeineCoder.recipic.domain.jwtSecurity.repository.RefreshTokenRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.JwtParserBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +20,7 @@ import java.util.Date;
 
 import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtTokenExpiration.ACCESS_TOKEN_EXPIRE_TIME;
 import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtTokenExpiration.REFRESH_TOKEN_EXPIRE_TIME;
+
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +48,7 @@ public class JwtService {
 
         // 4. Refresh Token 일치하는지 검사
         if (!refreshToken.getToken().equals(tokenRequestDto.getRefreshToken())) {
+
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
 
@@ -66,10 +64,8 @@ public class JwtService {
         return tokenDto;
     }
 
-
     public long extractAccessExpiration() {
         return ACCESS_TOKEN_EXPIRE_TIME;
     }
-
 
 }
