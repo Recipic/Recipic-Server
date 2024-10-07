@@ -31,12 +31,12 @@ public class JwtBlacklistFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/api/auth/") || requestURI.startsWith("/api/jwt/") ||
-                requestURI.startsWith("/api/brand/") || requestURI.startsWith("/api/recipe/rank/") ||
-                requestURI.startsWith("/api/recipe/detail/") || requestURI.startsWith("/api/recipe/list/") ||
-                requestURI.startsWith("/api/announcement/") || requestURI.startsWith("/v3/api-docs/") ||
-                requestURI.startsWith("/swagger-ui.html") || requestURI.startsWith("/swagger-ui/") ||
-                requestURI.startsWith("/swagger-resources/") || requestURI.startsWith("/webjars/")) {
+        if (requestURI.startsWith("/api/auth/**") || requestURI.startsWith("/api/jwt/**") ||
+                requestURI.startsWith("/api/brand/**") || requestURI.startsWith("/api/recipe/rank/**") ||
+                requestURI.startsWith("/api/recipe/detail/**") || requestURI.startsWith("/api/recipe/list/**") ||
+                requestURI.startsWith("/api/announcement/**") || requestURI.startsWith("/v3/api-docs/**") ||
+                requestURI.startsWith("/swagger-ui.html") || requestURI.startsWith("/swagger-ui/**") ||
+                requestURI.startsWith("/swagger-resources/**") || requestURI.startsWith("/webjars/**")) {
             filterChain.doFilter(request, response);
             return;
         }
