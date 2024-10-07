@@ -1,14 +1,13 @@
 package CaffeineCoder.recipic.domain.authentication.api;
 
+import CaffeineCoder.recipic.domain.authentication.application.OAuthLoginService;
 import CaffeineCoder.recipic.domain.authentication.infra.kakao.KakaoLoginParams;
 import CaffeineCoder.recipic.domain.authentication.infra.naver.NaverLoginParams;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
 import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenResponseDto;
 import CaffeineCoder.recipic.global.util.JwtUtils;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.Token;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

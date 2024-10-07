@@ -4,6 +4,7 @@ import CaffeineCoder.recipic.domain.jwtSecurity.controller.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,15 +21,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtFilter.AUTHORIZATION_HEADER;
+import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtFilter.BEARER_PREFIX;
+import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtTokenExpiration.*;
+
 @Slf4j
 @Component
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 5;         // 5분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;  // 1일
-    private static final long Admin_ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 20;         // 20일
+   // 20일
 
 
     private final Key key;
@@ -49,7 +52,7 @@ public class TokenProvider {
         long now = (new Date()).getTime();
 
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + Admin_ACCESS_TOKEN_EXPIRE_TIME);
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())       // payload "sub": "name"
                 .claim(AUTHORITIES_KEY, authorities)        // payload "auth": "ROLE_USER"
@@ -80,7 +83,7 @@ public class TokenProvider {
         long now = (new Date()).getTime();
 
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + Admin_ACCESS_TOKEN_EXPIRE_TIME);
+        Date accessTokenExpiresIn = new Date(now + ADMIN_ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())       // payload "sub": "name"
                 .claim(AUTHORITIES_KEY, authorities)        // payload "auth": "ROLE_USER"
@@ -144,5 +147,15 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+
+        // 토큰이 존재하고 "Bearer "로 시작하는지 확인
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX.length());
+        }
+        return null; // 토큰이 없거나 형식이 맞지 않는 경우 null 반환
     }
 }

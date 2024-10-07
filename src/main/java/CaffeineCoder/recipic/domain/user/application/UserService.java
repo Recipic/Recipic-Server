@@ -37,6 +37,10 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public String findUserEmail(Long userId){
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")).getEmail();
+    }
+
     public UserResponseDto updateUser(UserRequestDto userRequestDto, MultipartFile profileImage) {
         User user = findUser(SecurityUtil.getCurrentMemberId());
 

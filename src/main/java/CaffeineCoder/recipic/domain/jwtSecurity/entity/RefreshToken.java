@@ -1,35 +1,38 @@
 package CaffeineCoder.recipic.domain.jwtSecurity.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 
 @Getter
-@NoArgsConstructor
-@Table(name = "refresh_token")
-@Entity
-public class RefreshToken {
-
-    @Id
-    @Column(name = "rt_key")
+@Builder
+@RequiredArgsConstructor
+public class RefreshToken implements Serializable {
     private String key;
+    private String token;
+    private Long userId;
 
-    @Column(name = "rt_value")
-    private String value;
-
-    @Builder
-    public RefreshToken(String key, String value) {
+    @JsonCreator
+    public RefreshToken(
+            @JsonProperty("key") String key,
+            @JsonProperty("token") String token,
+            @JsonProperty("userId") Long userId) {
         this.key = key;
-        this.value = value;
+        this.token = token;
+        this.userId = userId;
     }
 
-    public RefreshToken updateValue(String token) {
-        this.value = token;
+
+    public RefreshToken updateValue(String newToken) {
+        this.token = newToken;
         return this;
     }
+
 }
+

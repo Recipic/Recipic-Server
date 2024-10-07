@@ -14,11 +14,14 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static CaffeineCoder.recipic.domain.jwtSecurity.jwt.JwtTokenExpiration.REFRESH_TOKEN_EXPIRE_TIME;
+
 @Component
 @RequiredArgsConstructor
 public class AuthTokensGenerator {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+
 
     public TokenDto generate(Long memberId) {
 
@@ -31,10 +34,10 @@ public class AuthTokensGenerator {
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .key(authentication.getName())
-                .value(tokenDto.getRefreshToken())
+                .token(tokenDto.getRefreshToken())
                 .build();
 
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(refreshToken,REFRESH_TOKEN_EXPIRE_TIME);
 
         return tokenDto;
     }
