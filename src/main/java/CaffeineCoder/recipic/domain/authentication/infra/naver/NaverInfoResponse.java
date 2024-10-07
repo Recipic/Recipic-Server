@@ -39,4 +39,9 @@ public class NaverInfoResponse implements OAuthInfoResponse {
     public String getProfileImageUrl() {
         return null;
     }
+
+    @Override
+    public String getAccessToken() {
+        return null;
+    }
 }

@@ -6,10 +6,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KakaoInfoResponse implements OAuthInfoResponse {
+
+    @Setter
+    private String accessToken;
 
     @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
@@ -47,5 +51,10 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
     @Override
     public String getProfileImageUrl() {
         return kakaoAccount.profile.profileImageURL;
+    }
+
+    @Override
+    public String getAccessToken() {
+        return accessToken;
     }
 }
