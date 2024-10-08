@@ -68,8 +68,12 @@ public class ScrapService {
         }
     }
 
-
     public boolean isScrapped(Long userId, Integer recipeId) {
         return scrapRepository.findByUserIdAndRecipeId(userId, recipeId).isPresent();
+    }
+
+    // 유저 탈퇴 시 해당 유저의 모든 스크랩을 삭제하는 메서드
+    public void deleteScrapsByUserId(Long userId) {
+        scrapRepository.deleteByUserId(userId);
     }
 }
