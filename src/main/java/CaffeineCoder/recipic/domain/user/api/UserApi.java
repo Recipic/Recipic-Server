@@ -48,12 +48,12 @@ public class UserApi {
         return ApiUtils.success(userService.updateUser(userRequestDto,profileImage));
     }
 
-    @PatchMapping("/user/logout")
+    @PostMapping("/user/logout")
     public ApiResponse<?> logout(HttpServletRequest request) {
         return ApiUtils.success(authService.logout(request));
     }
 
-    @PostMapping("/user/withdraw")
+    @DeleteMapping("/user/withdraw")
     public ApiResponse<?> withdraw(HttpServletRequest request) {
         return ApiUtils.success(authService.withdraw(request));
     }
