@@ -39,4 +39,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     @Transactional
     @Query("DELETE FROM Comment c WHERE c.recipeId = :recipeId")
     void deleteByRecipeId(@Param("recipeId") Integer recipeId);
+
+    // 유저 ID로 댓글 삭제
+    void deleteByUserId(Long userId);
 }

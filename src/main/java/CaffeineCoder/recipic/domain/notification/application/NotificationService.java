@@ -60,4 +60,7 @@ public class NotificationService {
         notification.markAsRead();
     }
 
+    public void deleteNotificationsByUserId(Long userId) {
+        notificationRepository.deleteByUserId(userId);
+    }
 }

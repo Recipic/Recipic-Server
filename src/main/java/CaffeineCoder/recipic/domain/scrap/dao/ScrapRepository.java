@@ -28,4 +28,7 @@ public interface ScrapRepository extends JpaRepository<Scrap, Integer> {
     @Query("SELECT s.recipeId FROM Scrap s WHERE s.userId = :userId")
     List<Integer> findRecipeIdsByUserId(@Param("userId") Long userId);
 
+    // 유저 ID로 스크랩 삭제
+    void deleteByUserId(Long userId);
+
 }

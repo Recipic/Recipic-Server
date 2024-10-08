@@ -93,4 +93,10 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
     Page<RecipeDto> findRecipesByRecipeIds(
             @Param("recipeIds") List<Integer> recipeIds,
             Pageable pageable);
+
+    // 유저 ID로 레시피 목록 조회
+    List<Recipe> findByUserId(Long userId);
+
+    // 유저 ID로 레시피 삭제
+    void deleteByUserId(Long userId);
 }

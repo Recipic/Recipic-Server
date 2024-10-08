@@ -208,4 +208,10 @@ public class CommentService {
             return CommentDto.fromEntity(comment, user, isLiked, likeCount, isMyComment);
         });
     }
+
+    // 유저 탈퇴 시 해당 유저가 작성한 모든 댓글 삭제
+    public void deleteCommentsByUserId(Long userId) {
+        commentRepository.deleteByUserId(userId);
+        commentLikeRepository.deleteByUserId(userId);
+    }
 }

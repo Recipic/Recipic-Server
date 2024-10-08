@@ -25,6 +25,7 @@ import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.global.image.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -54,9 +55,9 @@ public class RecipeService {
     private final UserRepository userRepository;
     private final BrandService brandService;
     private final ScrapService scrapService;
-    private final UserService userService;
     private final ImageService imageService;
     private final NotificationService notificationService;
+    private final RecipeUserHelper recipeUserHelper;
 
 
     @Transactional
@@ -140,8 +141,7 @@ public class RecipeService {
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
             Long currentMemberId = SecurityUtil.getCurrentMemberId();
-            if (currentMemberId != null) {
-                // 스크랩 여부 확인
+            if (currentMemberId != null) { // 스크랩 여부 확인
                 isScrapped = scrapService.isScrapped(currentMemberId, recipeId);
             }
         }
@@ -176,9 +176,7 @@ public class RecipeService {
                 })
                 .collect(Collectors.toList());
 
-        // 레시피 작성자 정보 가져오기
-        User user = userRepository.findById(recipe.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = recipeUserHelper.findUser(recipe.getUserId());  // RecipeUserHelper로 작성자 정보 가져오기
 
         // 레시피 상세 정보 DTO 반환
         return RecipeDetailResponseDto.builder()
@@ -359,7 +357,7 @@ public class RecipeService {
     private RecipeResponseDto getRecipeDtoToRecipeResponseDto(RecipeDto recipeDto) {
         int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
         int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-        User user = userService.findUser(recipeDto.userId());
+        User user = recipeUserHelper.findUser(recipeDto.userId());
         String brandName = recipeDto.brandName();
 
         return RecipeResponseDto.fromDto(recipeDto, user, brandName, scrapCount, commentCount);
@@ -369,9 +367,21 @@ public class RecipeService {
         RecipeDto recipeDto = RecipeDto.fromEntity(recipe);
         int scrapCount = scrapRepository.countByRecipeId(recipeDto.recipeId());
         int commentCount = commentRepository.countByRecipeId(recipeDto.recipeId());
-        User user = userService.findUser(recipeDto.userId());
+        User user = recipeUserHelper.findUser(recipeDto.userId());
         String brandName = recipeDto.brandName();
 
         return RecipeResponseDto.fromDto(recipeDto, user, brandName, scrapCount, commentCount);
+    }
+
+
+    // 유저 탈퇴 시 레시피 삭제 메서드
+    public void deleteRecipesByUserId(Long userId) {
+        List<Recipe> userRecipes = recipeRepository.findByUserId(userId);
+        for (Recipe recipe : userRecipes) {
+            recipeIngredientRepository.deleteByRecipeId(recipe.getRecipeId());
+            commentRepository.deleteByRecipeId(recipe.getRecipeId());
+            scrapRepository.deleteByRecipeId(recipe.getRecipeId());
+        }
+        recipeRepository.deleteByUserId(userId);
     }
 }
