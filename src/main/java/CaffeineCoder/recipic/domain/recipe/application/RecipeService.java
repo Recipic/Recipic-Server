@@ -295,15 +295,25 @@ public class RecipeService {
     }
 
     public List<RecipeResponseDto> getQueriedRecipes(String keyword, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Recipe> recipePage;
         if (keyword.equals("-1")) {
-            return getAllRecipes(page, size);
+            // 키워드가 없는 경우 전체 레시피 반환
+            recipePage = recipeRepository.findAll(pageRequest);
+        } else {
+            // 키워드가 있는 경우 키워드를 기반으로 레시피 검색
+            recipePage = recipeRepository.findByKeyword(keyword, pageRequest);
         }
 
-        Page<RecipeDto> recipeDtoPage = recipeRepository.findRecipesByBrandName(keyword, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
-        List<RecipeDto> recipeDtos = recipeDtoPage.getContent();
-
-        return recipeDtos.stream()
-                .map(this::getRecipeDtoToRecipeResponseDto)
+        return recipePage.getContent().stream()
+                .map(recipe -> RecipeResponseDto.fromEntity(
+                        recipe,
+                        recipeUserHelper.findUser(recipe.getUserId()),  // 레시피 작성자 정보 가져오기
+                        recipe.getBrandName(),
+                        recipeRepository.countScrapsByRecipeId(recipe.getRecipeId()),
+                        commentRepository.countByRecipeId(recipe.getRecipeId())  // 댓글 수 추가
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -372,7 +382,6 @@ public class RecipeService {
 
         return RecipeResponseDto.fromDto(recipeDto, user, brandName, scrapCount, commentCount);
     }
-
 
     // 유저 탈퇴 시 레시피 삭제 메서드
     public void deleteRecipesByUserId(Long userId) {
