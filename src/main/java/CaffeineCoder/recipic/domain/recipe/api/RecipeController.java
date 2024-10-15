@@ -1,5 +1,6 @@
 package CaffeineCoder.recipic.domain.recipe.api;
 
+import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.recipe.application.RecipeService;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeResponseDto;
 import CaffeineCoder.recipic.domain.recipe.dto.RecipeRequestDto;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -67,10 +69,19 @@ public class RecipeController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<?> getScraps(
+    public ResponseEntity<?> getRecipeList(
             @RequestParam(value = "keyword", defaultValue = "-1") String keyword,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        return ApiUtils.success(recipeService.getQueriedRecipes(keyword, page, size));
+        try {
+            // 전체 레시피 목록 반환
+            List<RecipeResponseDto> recipes = recipeService.getQueriedRecipes(keyword, page, size);
+
+            return ResponseEntity.ok(ApiUtils.success(recipes));  // ApiResponse로 반환
+        } catch (Exception e) {
+            System.out.println("Error occurred while fetching recipe list: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the recipe list");
+        }
     }
+
 }

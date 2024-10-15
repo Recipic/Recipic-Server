@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor // 생성자 자동 생성
+@RequiredArgsConstructor
 public class RecipeUserHelper {
 
     private final UserRepository userRepository;
@@ -16,11 +16,10 @@ public class RecipeUserHelper {
 
     // 유저 조회
     public User findUser(Long userId) {
-        // userId가 null일 경우 예외 처리
         if (userId == null) {
-            throw new RuntimeException("User ID is null. Current user is not authenticated.");
+            throw new RuntimeException("User ID is null. The user is not authenticated.");
         }
-        // userId로 User 조회, 없을 경우 예외 발생
+        System.out.println("Current User ID: " + userId);
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     }

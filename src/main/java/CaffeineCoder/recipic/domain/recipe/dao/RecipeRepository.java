@@ -99,4 +99,10 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
 
     // 유저 ID로 레시피 삭제
     void deleteByUserId(Long userId);
+
+    @Query("SELECT r FROM Recipe r WHERE r.title LIKE %:keyword% OR r.description LIKE %:keyword%")
+    Page<Recipe> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT COUNT(s) FROM Scrap s WHERE s.recipeId = :recipeId")
+    int countScrapsByRecipeId(@Param("recipeId") Integer recipeId);
 }
