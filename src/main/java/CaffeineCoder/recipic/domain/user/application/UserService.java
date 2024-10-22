@@ -9,6 +9,8 @@ import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.domain.user.dto.UserRequestDto;
 import CaffeineCoder.recipic.domain.user.dto.UserResponseDto;
+import CaffeineCoder.recipic.global.error.exception.FileUploadException;
+import CaffeineCoder.recipic.global.error.exception.InvalidUserException;
 import CaffeineCoder.recipic.global.image.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
@@ -33,33 +35,33 @@ public class UserService {
 
         return userRepository.findById(memberId)
                 .map(UserResponseDto::of)
-                .orElseThrow(() -> new RuntimeException("로그인 유저 정보가 없습니다."));
+                .orElseThrow(() -> new InvalidUserException());
     }
 
     public UserResponseDto findMemberInfoByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(UserResponseDto::of)
-                .orElseThrow(() -> new RuntimeException("유저 정보가 없습니다."));
+                .orElseThrow(() -> new InvalidUserException());
     }
 
     public User findUser(Long userId){
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new InvalidUserException());
     }
 
     public String findUserEmail(Long userId){
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")).getEmail();
+        return userRepository.findById(userId).orElseThrow(() -> new InvalidUserException()).getEmail();
     }
 
     public UserResponseDto updateUser(UserRequestDto userRequestDto, MultipartFile profileImage) {
         User user = findUser(SecurityUtil.getCurrentMemberId());
 
         String uuid = null;
-        try {
-            if (profileImage != null && !profileImage.isEmpty()) {
-                uuid = "https://storage.googleapis.com/recipick-image-bucket/"+imageService.uploadImage(profileImage);
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                uuid = "https://storage.googleapis.com/recipick-image-bucket/" + imageService.uploadImage(profileImage);
+            } catch (IOException e) {
+                throw new FileUploadException();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         if (uuid == null) {

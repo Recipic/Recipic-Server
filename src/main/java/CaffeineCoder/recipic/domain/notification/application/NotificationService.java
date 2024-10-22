@@ -5,6 +5,7 @@ import CaffeineCoder.recipic.domain.notification.domain.Notification;
 import CaffeineCoder.recipic.domain.notification.domain.ResourceNotFoundException;
 import CaffeineCoder.recipic.domain.user.dao.UserRepository;
 import CaffeineCoder.recipic.domain.user.domain.User;
+import CaffeineCoder.recipic.global.error.exception.InvalidUserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +27,7 @@ public class NotificationService {
         try {
             // 유저 정보 가져오기
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                    .orElseThrow(() -> new InvalidUserException());
 
             // 알림 생성
             Notification notification = Notification.builder()
@@ -49,7 +50,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public List<Notification> getUserNotifications(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new InvalidUserException());
         return notificationRepository.findByUserOrderByNotificationIdDesc(user);
     }
 
