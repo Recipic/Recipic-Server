@@ -30,12 +30,6 @@ public class GlobalExceptionHandler {
         return handleException(e, ErrorCode.UNAUTHORIZED, ErrorCode.UNAUTHORIZED.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<?> handleException(Exception e) {
-        log.error("Exception 발생", e);
-        return handleException(e, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
-    }
-
     @ExceptionHandler(InsufficientAuthenticationException.class)
     public ResponseEntity<?> handleInsufficientAuthenticationException(InsufficientAuthenticationException e) {
         // 로그 출력
@@ -44,6 +38,12 @@ public class GlobalExceptionHandler {
         // 적절한 에러 응답 생성
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.UNAUTHORIZED); // 401 에러 처리
         return handleException(e, ErrorCode.UNAUTHORIZED, ErrorCode.UNAUTHORIZED.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<?> handleException(Exception e) {
+        log.error("Exception 발생", e);
+        return handleException(e, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
     private ResponseEntity<?> handleException(Exception e, ErrorCode errorCode, String message) {
