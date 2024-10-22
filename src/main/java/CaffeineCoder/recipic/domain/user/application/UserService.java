@@ -98,7 +98,6 @@ public class UserService {
         notificationService.deleteNotificationsByUserId(userId);
 
         // 5. 유저 삭제
-        userRepository.deleteById(userId);
     }
 
 }

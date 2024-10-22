@@ -4,6 +4,8 @@ import CaffeineCoder.recipic.domain.jwtSecurity.repository.RefreshTokenRepositor
 import CaffeineCoder.recipic.domain.jwtSecurity.service.JwtService;
 import CaffeineCoder.recipic.domain.jwtSecurity.util.SecurityUtil;
 import CaffeineCoder.recipic.domain.user.application.UserService;
+import CaffeineCoder.recipic.domain.user.dao.UserRepository;
+import CaffeineCoder.recipic.domain.user.domain.User;
 import CaffeineCoder.recipic.global.util.RedisUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -34,6 +36,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     public String withdraw(HttpServletRequest request, HttpServletResponse response) {
         String email = invalidateToken(request);
@@ -58,6 +61,7 @@ public class AuthService {
         }
 
         kakaoUnlink(socialAccessToken, request);
+
 
 
 
@@ -87,7 +91,8 @@ public class AuthService {
     private String invalidateToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         Long expiration = jwtService.extractAccessExpiration();
-        String email = userService.findUserEmail(SecurityUtil.getCurrentMemberId());
+        Long userId = SecurityUtil.getCurrentMemberId();
+        String email = userService.findUserEmail(userId);
         blacklistAccessToken(token);
 
         String id;
@@ -109,7 +114,7 @@ public class AuthService {
             refreshTokenRepository.deleteByKey(id);
         }
 
-
+        userRepository.deleteById(userId);
 
         return email;
     }
