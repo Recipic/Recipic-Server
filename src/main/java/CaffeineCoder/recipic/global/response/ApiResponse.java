@@ -18,7 +18,7 @@ public class ApiResponse<T> {
     @JsonProperty(value = "response")
     private final T response;
 
-    @JsonProperty(value = "errorResponse")
+    @JsonProperty(value = "error")
     private final ErrorResponse errorResponse;
 
     public static <T> ApiResponse<T> create(boolean isSuccess, T response, ErrorResponse errorResponse) {
