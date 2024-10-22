@@ -54,10 +54,10 @@ public class UserApi {
     }
 
     @DeleteMapping("/user/withdraw")
-    public ApiResponse<?> withdraw(HttpServletRequest request) {
+    public ApiResponse<?> withdraw(HttpServletRequest request, HttpServletResponse response) {
         Long userId = SecurityUtil.getCurrentMemberId();  // 현재 로그인된 유저 ID 가져오기
         userService.withdrawUser(userId);  // 유저 및 연관된 데이터 삭제
-        return ApiUtils.success(authService.withdraw(request));
+        return ApiUtils.success(authService.withdraw(request, response));
     }
 
 

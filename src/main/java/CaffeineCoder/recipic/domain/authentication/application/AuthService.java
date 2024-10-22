@@ -35,7 +35,7 @@ public class AuthService {
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String withdraw(HttpServletRequest request) {
+    public String withdraw(HttpServletRequest request, HttpServletResponse response) {
         String email = invalidateToken(request);
         String socialAccessToken = null;
         if (redisUtil.getValues("USER: " + email) != null) {
@@ -44,6 +44,17 @@ public class AuthService {
         }
         else{
             throw new RuntimeException("소셜 로그인 정보가 없습니다.");
+        }
+
+        // 쿠키 삭제
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue(null);
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
         }
 
         kakaoUnlink(socialAccessToken, request);
