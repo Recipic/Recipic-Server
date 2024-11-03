@@ -32,7 +32,6 @@ public class UserService {
     private final @Lazy RecipeService recipeService;
 
     public UserResponseDto findMemberInfoById(Long memberId) {
-
         return userRepository.findById(memberId)
                 .map(UserResponseDto::of)
                 .orElseThrow(() -> new InvalidUserException());
@@ -44,18 +43,21 @@ public class UserService {
                 .orElseThrow(() -> new InvalidUserException());
     }
 
-    public User findUser(Long userId){
-        return userRepository.findById(userId).orElseThrow(() -> new InvalidUserException());
+    public User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidUserException());
     }
 
-    public String findUserEmail(Long userId){
-        return userRepository.findById(userId).orElseThrow(() -> new InvalidUserException()).getEmail();
+    public String findUserEmail(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidUserException())
+                .getEmail();
     }
 
     public UserResponseDto updateUser(UserRequestDto userRequestDto, MultipartFile profileImage) {
         User user = findUser(SecurityUtil.getCurrentMemberId());
-
         String uuid = null;
+
         if (profileImage != null && !profileImage.isEmpty()) {
             try {
                 uuid = "https://storage.googleapis.com/recipick-image-bucket/" + imageService.uploadImage(profileImage);
@@ -68,10 +70,11 @@ public class UserService {
             uuid = user.getProfileImageUrl();
         }
 
-        if(userRequestDto == null){
+        if (userRequestDto == null) {
             user.profileUpdate(uuid);
             return UserResponseDto.of(user);
         }
+
         String nickName = userRequestDto.getNickName() != null ? userRequestDto.getNickName() : user.getNickName();
         String description = userRequestDto.getDescription() != null ? userRequestDto.getDescription() : user.getDescription();
 
@@ -91,13 +94,13 @@ public class UserService {
         // 2. 스크랩 삭제
         scrapService.deleteScrapsByUserId(userId);
 
-        // 3. 레시피 삭제 (직접 의존성을 제거하고 메서드 호출로 대체)
+        // 3. 레시피 삭제
         deleteUserRecipes(userId);
 
         // 4. 알림 삭제
         notificationService.deleteNotificationsByUserId(userId);
 
         // 5. 유저 삭제
+        userRepository.deleteById(userId);
     }
-
 }

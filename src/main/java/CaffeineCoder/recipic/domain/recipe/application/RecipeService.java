@@ -384,6 +384,7 @@ public class RecipeService {
     }
 
     // 유저 탈퇴 시 레시피 삭제 메서드
+    @Transactional
     public void deleteRecipesByUserId(Long userId) {
         List<Recipe> userRecipes = recipeRepository.findByUserId(userId);
         for (Recipe recipe : userRecipes) {
@@ -391,6 +392,6 @@ public class RecipeService {
             commentRepository.deleteByRecipeId(recipe.getRecipeId());
             scrapRepository.deleteByRecipeId(recipe.getRecipeId());
         }
-        recipeRepository.deleteByUserId(userId);
+        recipeRepository.deleteByUserId(userId); // 유저의 레시피 삭제
     }
 }
