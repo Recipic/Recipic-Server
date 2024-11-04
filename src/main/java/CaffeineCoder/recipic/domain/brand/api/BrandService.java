@@ -67,12 +67,15 @@ public class BrandService {
 
         return baseIngredientRepository.findByBrand(brand)
                 .stream()
-                .map(baseIngredient -> {
-                    Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
-                    baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
-                    baseIngredientMap.put("ingredientName", baseIngredient.getIngredientName());
-                    return baseIngredientMap;
-                })
+                .flatMap(baseIngredient ->
+                        baseIngredient.getBaseIngredientSizes().stream().map(size -> {
+                            Map<String, Object> baseIngredientMap = new LinkedHashMap<>();
+                            baseIngredientMap.put("ingredientId", baseIngredient.getBaseIngredientId());
+                            baseIngredientMap.put("ingredientName", baseIngredient.getIngredientName());
+                            baseIngredientMap.put("size", size.getSize());
+                            return baseIngredientMap;
+                        })
+                )
                 .collect(Collectors.toList());
     }
 
